@@ -62,7 +62,11 @@ p {
 
 .tg  {
     position: absolute;
-    margin-top: 1500px;
+<<<<<<< HEAD
+    margin-top: 2000px;
+=======
+    margin-top: 1000px;
+>>>>>>> 2c37b58355f3c4d189135e1f61f7acd5f0fed405
     margin-left: 50px;
     margin-right: 50px;
     font-size 14px;
