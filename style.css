@@ -13,8 +13,8 @@ p {
 
 #slider {
     width: 100%;
-    max-width: 1000px;
-    height: 25vw;
+    max-width: 100%;
+    height: 35vw;
     max-height: 250px;
     position: relative;
 }
@@ -62,8 +62,7 @@ p {
 
 .tg  {
     position: absolute;
-    margin-top: 2000px;
-    margin-top: 1000px;
+    margin-top: 1200px;
     margin-left: 50px;
     margin-right: 50px;
     font-size 14px;
