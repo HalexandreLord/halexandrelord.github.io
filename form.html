@@ -1,33 +1,201 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+
+<!DOCTYPE html>
 <html>
 <head>
-<meta content="text/html; charset=ISO-8859-1"
-http-equiv="content-type">
-<title>FORMULARIO DE TESTE</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+     <meta charset="utf-8">
+
+    <title> ZEM </title>
+
+  <link rel="stylesheet" type="text/css" href="materialize/css/materialize.css">
+  <link rel="stylesheet" type="text/css" href="materialize/css/estilo.css">
+
+
+
+
 </head>
+
 <body>
 
-<form  id="form1" name="form1" method="post" action="envia_fale.php">
-  <table  width="500" border="0" align="center" cellpadding="0" cellspacing="2">
-    <tr>
-      <td  align="right">Nome:</td>
-      <td><input  type="text" name="nome" id="nome" /></td>
-    </tr>
-    <tr>
-      <td  align="right">Assunto:</td>
-      <td><input  type="text" name="assunto" id="assunto" /></td>
-    </tr>
-    <tr>
-      <td  align="right">Mensagem:</td>
-      <td><textarea  name="mensagem" id="mensagem" cols="45" rows="5"></textarea></td>
-    </tr>
-    <tr>
-      <td  colspan="2" align="center"><input type="submit" value="Enviar" /></td>
-    </tr>
-  </table>
-</form>
-<br>
-<br>
-<br>
+
+<nav>
+    <div class="nav-wrapper container">
+
+      <a href="home.html" class="brand-logo"><img src="materialize/img/zem.png" class="responsive-img"></a>
+
+      <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+      <ul class="right hide-on-med-and-down">
+
+                    <li><a href="quemsomos.html" class="grey-text">Quem Somos</a></li>
+                    <li><a href="corporativo.html" class="grey-text">Corporativo</a></li>
+                    <li><a href="contato.html" class="grey-text">Contato</a></li>
+                    <li><a href="acesso.html" class="grey-text">Acesse</a></li>
+
+      </ul>
+      <ul class="side-nav" id="mobile-demo">
+
+                    <li><a href="quemsomos.html">Quem Somos</a></li>
+                    <li><a href="corporativo.html">Corporativo</a></li>
+                    <li><a href="contato.html">Contato</a></li>
+                    <li><a href="acesso.html">Acesse</a></li>
+
+      </ul>
+      </div>
+ </nav>
+
+<main>
+
+
+  <div class="row container " >
+
+  <br>
+  <br>
+
+  <h6 align="left"> Em caso de dúvida ou queira solicitar  seuorçamento, por favor entre em contato conosco preenchendo o formulário abaixo.</h6>
+  <br>
+            <form name=contato method="POST" action="conexao.php">
+
+
+                  <div class="row ">
+
+                   <div class="input-field col s12">
+
+                        <input  type="text"  name="nome" class="validate" required>
+                        <label for="icon_prefix " >Nome Completo</label> 
+                   </div>
+
+                    <div class="input-field col s12">
+
+                        <input type="text" name="telefone" class="validate" required>
+                        <label for="icon_prefix ">Telefone</label> 
+                   </div>
+
+
+                    <div class="input-field col s12">
+
+                        <input type="text" name="email"  class="validate" required>
+                        <label for="icon_prefix ">E-mail</label> 
+                   </div>
+
+                  <div class="input-field col s12" >
+
+                    <select name="assunto" >
+                      <option value="" disabled selected>Escolha uma opção</option>
+                      <option value="orcamento">Solicito orçamento</option>
+                      <option value="duvida">Dúvidas</option>
+                      <option value="sistema">Sistema com problema</option>
+                      <option value="aplicativo">Aplicativo com aplicativo</option>
+                      <option value="sugestao">Sugestão</option>
+                      <option value="outros">Outros</option>
+
+                    </select>
+                  </div>
+
+
+                <div class="input-field col s12">
+                  <textarea name="mensagem" class="materialize-textarea"></textarea>
+                   <label for="textarea1"> Digite aqui sua mensagem </label>
+                </div>
+
+
+                <div class="input-field col s12 center">
+                      <br>
+
+                        <input class="btn waves-effect waves-light light-green darken-4" type="submit" name="enviar" value="enviar">
+
+                      <br>
+                      <br>
+                </div>
+
+        </div>
+
+
+            </form>
+
+   </div>
+
+
+
+</main>
+
+
+
+<div class="map-responsive">
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1586.5413163548556!2d-46.98631968366203!3d-18.955615713886253!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x742b43cc343297bb!2sSou+Zem!5e0!3m2!1spt-BR!2sus!4v1490891655968" width="600" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
+</div>
+
+
+
+         <footer class="page-footer">
+          <div class="container">
+            <div class="row">
+              <div class="col l6 s12">
+                <h5 class="white-text"> Quer o zem na sua cidade? </h5>
+                <p class="grey-text text-lighten-4"> Faça parte deste movimento e preencha o formulário clicando abaixo.</p>
+
+                <a class="waves-effect waves-light btn green" href="assine.html"> Clique aqui</a>
+              </div>
+
+
+              <div class="col l4 offset-l2 s12">
+                <h5 class="white-text"> Siga nossas redes sociais</h5>
+
+
+                   <ul class="social-icons ">
+                      <li><a href="" class="social-icon"> <i class="fa fa-facebook"></i></a></li>
+                      <li><a href="" class="social-icon"> <i class="fa fa-twitter"></i></a></li>
+                      <li><a href="" class="social-icon"> <i class="fa fa-youtube"></i></a></li>
+                      <br>
+
+                  </ul>
+                        <h6 class="white-text" >contato@souzem.com.br</h6>
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright">
+            <div class="container center">
+          © 2017 Sou Zem | Todos os direitos reservados.
+
+            </div>
+          </div>
+        </footer>  
+
+
+ <!--  Scripts-->
+
+    <script type="text/javascript" src ="http://code.jquery.com/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="materialize/js/materialize.min.js"></script>
+
+
+
+
+     <script>
+    $( document ) .ready(function(){
+      $(".button-collapse").sideNav();
+
+    })
+    </script>
+
+
+     <script>
+
+  $(document).ready(function() {
+    $('select').material_select();
+  });
+
+
+ </script>
+
+
+
+
+
 </body>
+
 </html>
