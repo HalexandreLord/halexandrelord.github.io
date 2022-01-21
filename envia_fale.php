@@ -1,4 +1,4 @@
-$destinatario = halexandrelordwilson@gmail.com;
+$destinatario = 'halexandrelordwilson@gmail.com';
 
 $nome = $_REQUEST['nome'];
 $sobrenome = $_REQUEST['sobrenome'];
