@@ -5,69 +5,26 @@
 </head>
 <body>
     <div id="contato_form">
-      <form action="envia_fale.php" name="form_contato" method="post" >
-      <p class="titulo">Formulário <small class="asteristico">*Campos Obrigatorios</small></p>
-        <table align="center">
-          <tr>
-            <td>Nome:<sup class="asteristico">*</sup></td>
-            <td>
-              <input type="text" name="nome" maxlength="40" />
-            </td>
-          </tr>
-          <tr>
-            <td>E-mail:<sup class="asteristico">*</sup></td>
-            <td>
-              <input type="email" name="email" maxlength="30" />
-            </td>
-          </tr>
-          <tr>
-            <td>Telefone:<sup class="asteristico">*</sup></td>
-            <td>
-              <input type="text" name="telefone" maxlength="14" />
-            </td>
-          </tr>
-          <tr>
-            <td>Opções:<sup class="asteristico">*</sup></td>
-            <td>
-              <select name="escolhas" class="campo_input">
-                <option value="Opção 1">Opção 1</option>
-                <option value="Opção 2">Opção 2</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td>Mensagem:<sup class="asteristico">*</sup></td>
-            <td>
-              <textarea name="msg" cols="16" rows="5"></textarea>
-            </td>
-          </tr>
-          <tr align="right";>
-            <td colspan="2">
-              <input type="reset" class="campo_submit" value="Limpar" />
-              <input type="submit" class="campo_submit" value="Enviar" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" align="right"><small class="asteristico">* Campos obrigatorios</small></td>
-          </tr>
-        </table>
-      </form>
+      <form class="form form-p d-flex justify-content-lg-center d-lg-flex flex-column d-sm-flex"  action="envia_fale.php" method="post" name="form">
+   <div class="group1 d-md-flex mx-md-0 d-lg-flex d-xl-flex align-items-xl-center ml-xl-0 mr-xl-0 mx-lg-auto mx-auto mx-sm-auto">
+      <input type="text" placeholder="Nome" id="nome" class="my-xl-auto  mr-md-5 mb-md-0" name="nome">
+      <input type="text" placeholder="Sobrenome" id="sobrenome" name="sobrenome">
+   </div>
+   <div class="group1 d-md-flex mx-md-0 d-lg-flex d-xl-flex align-items-xl-center ml-xl-0 mr-xl-0 mx-lg-auto mx-auto mx-sm-auto mt-md-5">
+      <input type="text" placeholder="Email" id="email" class="my-xl-auto pt-xl-5 m-md-0 mr-md-5" name="email">
+      <input type="text" placeholder="Telefone" id="telefone" class="pt-xl-5" name="telefone">
+   </div>
+   <div class="group1 ml-xl-0 mx-sm-auto mb-sm-4 mb-lg-3 mx-lg-auto mb-xl-0">
+      <select name="assunto" id="assunto" class="mt-xl-5 mt-md-5">
+         <option value="seg">Assunto</option>
+         <option value="seg">Segurança</option>
+         <option value="seg">Segurança</option>
+         <option value="seg">Segurança</option>
+      </select>
+   </div>
+   <textarea placeholder="Mensagem" name="mensabem" id="" cols="30" rows="10" class="mt-xl-2"></textarea>
+   <button class="btn btn-enviar" type="submit" name="submit" value="submit"> Enviar</button>  
+</form>
     </div>
 </body>
 </html>
-
-<style>
-body{
-  font-size:12px;
-  font-family:Verdana, Geneva, sans-serif;
-}
-#contato_form{
-  width:500px;
-  min-height:175px;
-  color:#999;
-  margin:auto;
-}
-.asteristico{
-  color:#F00;
-}
-</style>
