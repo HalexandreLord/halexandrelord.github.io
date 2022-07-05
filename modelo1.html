@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Site">
+    <meta name="keywords" content="HTML, CSS, JavaScript">
+    <meta name="author" content="Halexandre Lord">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="refresh" content="60">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+<!--javascript-->
+    <script language="JavaScript">
+        const handler = ({ matches }) => {
+          if (matches)
+            window.location = 'modelo2.html'
+        }
+        const media = window.matchMedia('(max-width: 700px)')
+        media.addListener(handler)
+        handler(media)
+    </script>
+</head>
+<!--CSS-->
+<style>
+html {
+  scroll-behavior: smooth;
+}
+body{
+    margin: 0px;
+}
+#menu{
+    background-color: rgb(4, 75, 39);
+    width: 100%;
+    height: 30px;
+    position: fixed;
+}
+#bloco1{
+    background-color: rgb(171, 226, 43);
+    width: 100%;
+    height: 390px;
+}
+#bloco2{
+    background-color: rgb(236, 15, 100);
+    width: 100%;
+    height: 390px;
+}
+#bloco3{
+    background-color: rgb(43, 174, 226);
+    width: 100%;
+    height: 390px;
+}
+
+</style>
+<body>
+<div id="menu"><a href="#bloco3">bloco 3</a></div>
+<div id="bloco1"></div>
+<div id="bloco2"></div>
+<div id="bloco3"></div>
+<script>
+    
+</script>
+
+</body>
+
+</html>
