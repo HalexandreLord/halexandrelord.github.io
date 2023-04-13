@@ -22,19 +22,33 @@ Formação<span class="w3-tag">Acadêmica</span>
 </h1>
 <hr>
 <p>
-Graduado em Analise e Desenvolvimento de Sistemas<br>Unifatecie
+Graduado em Analise e Desenvolvimento de Sistemas | Unifatecie
 </p>
 <hr>
 <p>
-Pós-graduado em Robótica e desenvolvimento de sistemas automatos<br>Unesp
+Pós-graduado em Robótica e desenvolvimento | Unesp
 </p>
 <hr> 
-    <p><b>Cursos de aperfeçoamento técnico:</b></p>
-<p>Cisco:</p>
-<p>Microsoft:</p>
-<p>IBM:</p>
+    <p><b>Cursos de aperfeçoamento técnico:</b></p><br>
+
+<div class="w3-row">
+  <div class="w3-col" style="width:100%">
+    <button onclick="document.getElementById('id01').style.display='block'" class="w3-button w3-black">Mitshubish</button>
+  <div id="id01" class="w3-modal w3-animate-opacity">
+    <div class="w3-modal-content w3-card-4">
+      <header class="w3-container"> 
+        <span onclick="document.getElementById('id01').style.display='none'" 
+        class="w3-button w3-large w3-display-topright">&times;</span>
+      </header>
+      <div class="w3-container">
+        <img id="certificado" src="mit.jpg">
+      </div>
+    </div>
+  </div>
 </div>
-</div>
+  </div>
+  
+  
 <div class="footer">
   <p>Halexandre Lord - Barretos/SP (<i><a href="https://barretos.sp.gov.br">Conheça a capital nascional do Rodeio</a></i>) - 2023</p>
 </div>
@@ -46,12 +60,25 @@ body{
   padding: 30px;
 }
 
+hr{
+  height: 0.5px;
+  background-color: red;
+  border: none;
+}
+
 a{
   text-decoration: none;
 }
 
 a:hover {
   background-color: #dcdcdc;
+}
+
+#certificado{
+  width: 70%;
+  height:50%;
+
+
 }
 
 img{
