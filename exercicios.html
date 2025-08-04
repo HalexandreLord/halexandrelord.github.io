@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercícios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .section {
+            background-color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+        }
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 1.5rem;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 2rem;
+        }
+        ul li {
+            margin-bottom: 0.5rem;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <h1>Metodologia de Ensino de Matemática</h1>
+            <p>Vou criar dois exercícios com equações de segundo grau e explicar o passo a passo para resolvê-los, utilizando métodos claros e alinhados com as metodologias de ensino de matemática descritas anteriormente, como a resolução de problemas e o raciocínio lógico. As equações serão resolvidas usando a **fórmula de Bhaskara**, que é uma abordagem comum e eficaz para equações do tipo \( ax^2 + bx + c = 0 \).
+
+---
+
+### Exercício 1
+**Enunciado:** Uma quadra de esportes tem formato retangular, e sua área é dada por \( A = x^2 + 5x + 6 \), onde \( x \) é a largura em metros. Sabendo que a área da quadra é 36 m², determine as possíveis dimensões da quadra (largura e comprimento).
+
+#### Passo a Passo
+1. **Formular a equação:**
+   - A área da quadra é dada por \( x^2 + 5x + 6 = 36 \).
+   - Para resolver, colocamos a equação na forma padrão \( ax^2 + bx + c = 0 \):
+     \[
+     x^2 + 5x + 6 - 36 = 0 \implies x^2 + 5x - 30 = 0
+     \]
+   - Aqui, temos \( a = 1 \), \( b = 5 \), \( c = -30 \).
+
+2. **Calcular o discriminante (\( \Delta \)):**
+   - A fórmula do discriminante é \( \Delta = b^2 - 4ac \).
+   - Substituímos os valores:
+     \[
+     \Delta = 5^2 - 4 \cdot 1 \cdot (-30) = 25 + 120 = 145
+     \]
+   - Como \( \Delta > 0 \), há duas raízes reais.
+
+3. **Aplicar a fórmula de Bhaskara:**
+   - A fórmula é \( x = \frac{-b \pm \sqrt{\Delta}}{2a} \).
+   - Substituímos \( a = 1 \), \( b = 5 \), \( \Delta = 145 \):
+     \[
+     x = \frac{-5 \pm \sqrt{145}}{2 \cdot 1} = \frac{-5 \pm \sqrt{145}}{2}
+     \]
+   - Calculamos as duas soluções:
+     - \( x_1 = \frac{-5 + \sqrt{145}}{2} \approx \frac{-5 + 12.04}{2} \approx \frac{7.04}{2} \approx 3.52 \)
+     - \( x_2 = \frac{-5 - \sqrt{145}}{2} \approx \frac{-5 - 12.04}{2} \approx \frac{-17.04}{2} \approx -8.52 \)
+
+4. **Interpretar as soluções:**
+   - Como \( x \) representa a largura da quadra (uma medida física), descartamos \( x_2 = -8.52 \), pois não faz sentido no contexto.
+   - Assim, \( x \approx 3.52 \) metros é a largura.
+
+5. **Determinar o comprimento:**
+   - A área é dada por \( A = x \cdot \text{comprimento} = 36 \).
+   - Substituímos \( x \approx 3.52 \):
+     \[
+     \text{comprimento} = \frac{36}{3.52} \approx 10.23 \text{ metros}
+     \]
+
+6. **Verificação:**
+   - Verificamos se \( x^2 + 5x + 6 = 36 \):
+     \[
+     3.52^2 + 5 \cdot 3.52 + 6 \approx 12.39 + 17.6 + 6 \approx 35.99 \approx 36
+     \]
+   - A aproximação confirma que a solução está correta.
+
+**Resposta Final:** As dimensões da quadra são aproximadamente **3,52 m de largura** e **10,23 m de comprimento**.
+
+---
+
+### Exercício 2
+**Enunciado:** Um foguete é lançado verticalmente, e sua altura \( h \) (em metros) em função do tempo \( t \) (em segundos) é dada por \( h(t) = -5t^2 + 20t + 1 \). Determine em quantos segundos o foguete atinge a altura de 16 metros.
+
+#### Passo a Passo
+1. **Formular a equação:**
+   - Queremos \( h(t) = 16 \), então:
+     \[
+     -5t^2 + 20t + 1 = 16
+     \]
+   - Colocamos na forma padrão:
+     \[
+     -5t^2 + 20t + 1 - 16 = 0 \implies -5t^2 + 20t - 15 = 0
+     \]
+   - Para simplificar, dividimos toda a equação por \(-5\):
+     \[
+     t^2 - 4t + 3 = 0
+     \]
+   - Agora, temos \( a = 1 \), \( b = -4 \), \( c = 3 \).
+
+2. **Calcular o discriminante (\( \Delta \)):**
+   - \[
+     \Delta = (-4)^2 - 4 \cdot 1 \cdot 3 = 16 - 12 = 4
+     \]
+   - Como \( \Delta \geq 0 \), há duas raízes reais.
+
+3. **Aplicar a fórmula de Bhaskara:**
+   - \[
+     t = \frac{-(-4) \pm \sqrt{4}}{2 \cdot 1} = \frac{4 \pm 2}{2}
+     \]
+   - Calculamos as duas soluções:
+     - \( t_1 = \frac{4 + 2}{2} = \frac{6}{2} = 3 \)
+     - \( t_2 = \frac{4 - 2}{2} = \frac{2}{2} = 1 \)
+
+4. **Interpretar as soluções:**
+   - As soluções \( t = 1 \) segundo e \( t = 3 \) segundos indicam os momentos em que o foguete atinge 16 metros de altura, uma na subida e outra na descida (trajetória parabólica).
+
+5. **Verificação:**
+   - Para \( t = 1 \):
+     \[
+     h(1) = -5(1)^2 + 20(1) + 1 = -5 + 20 + 1 = 16
+     \]
+   - Para \( t = 3 \):
+     \[
+     h(3) = -5(3)^2 + 20(3) + 1 = -45 + 60 + 1 = 16
+     \]
+   - Ambas as soluções satisfazem a equação.
+
+**Resposta Final:** O foguete atinge a altura de 16 metros em **1 segundo** (na subida) e em **3 segundos** (na descida).
+
+---
+
+### Explicação Pedagógica
+- **Resolução de Problemas:** Cada exercício foi apresentado como um problema prático (área de uma quadra e trajetória de um foguete), incentivando o aluno a conectar a matemática com situações reais, conforme a metodologia ativa.
+- **Raciocínio Lógico:** O passo a passo detalhado ajuda a desenvolver o pensamento lógico, mostrando como organizar a resolução (formular a equação, calcular o discriminante, interpretar resultados).
+- **Flexibilidade:** A escolha da fórmula de Bhaskara é adequada para ambos os exercícios, mas o contexto físico (descartar valores negativos no Exercício 1) reforça a importância de interpretar as soluções no contexto do problema.
+</p>
+
+           </div>
+    </div>
+    <footer>
+        <p>&copy; 2025 Professor Lord. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
