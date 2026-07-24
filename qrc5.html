@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sistema de Ingressos QR Code</title>
+  <!-- Bibliotecas externas para QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    * { 
+      box-sizing: border-box; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Layout focado em preencher a tela inteira do celular sem rolagem global */
+    html, body { 
+      width: 100%;
+      height: 100%;
+      height: 100dvh; 
+      overflow: hidden; 
+      background-color: #f4f6f9; 
+      color: #333; 
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+
+    h1 { 
+      text-align: center; 
+      color: #1e293b; 
+      font-size: 1.2rem; 
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Navegação por Abas */
+    .tabs { 
+      display: flex; 
+      justify-content: space-between; 
+      gap: 5px; 
+      margin-bottom: 10px; 
+      flex-shrink: 0;
+    }
+    .tab-btn { 
+      flex: 1;
+      padding: 10px 5px; 
+      font-weight: bold; 
+      border: none; 
+      background: #e2e8f0; 
+      cursor: pointer; 
+      border-radius: 8px; 
+      font-size: 0.8rem; 
+      text-align: center;
+    }
+    .tab-btn.active { background: #2563eb; color: white; }
+
+    /* Conteúdo Principal Flexível */
+    .content-section { 
+      display: none; 
+      flex: 1;
+      background: white; 
+      padding: 12px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+      overflow: hidden; 
+      flex-direction: column;
+    }
+    .content-section.active { display: flex; }
+
+    h2 { 
+      text-align: center; 
+      color: #1e293b; 
+      font-size: 1.1rem; 
+      margin-bottom: 10px; 
+      flex-shrink: 0;
+    }
+
+    /* Dashboard de Contagem Rapida no Validador */
+    .counter-badge {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 6px 12px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #334155;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Formulários e Botões Touch-Friendly */
+    .form-group { 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+      justify-content: center; 
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+    input[type="number"], input[type="text"] { 
+      padding: 10px; 
+      border: 1px solid #cbd5e1; 
+      border-radius: 6px; 
+      font-size: 0.95rem; 
+      width: 100%;
+      max-width: 180px;
+      text-align: center;
+    }
+    button.action-btn { 
+      padding: 10px 14px; 
+      background: #16a34a; 
+      color: white; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-size: 0.9rem; 
+      font-weight: bold; 
+      white-space: nowrap;
+    }
+
+    /* Grid de Ingressos (Com scroll interno) */
+    .tickets-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+      gap: 10px; 
+      overflow-y: auto; 
+      flex: 1;
+      padding: 5px;
+    }
+    .ticket-card { border: 1px dashed #94a3b8; padding: 8px; text-align: center; border-radius: 8px; background: #fff; }
+    .ticket-card h3 { margin: 2px 0; font-size: 0.85rem; }
+    .ticket-card .qr-container { display: flex; justify-content: center; margin: 5px 0; }
+    .ticket-card p { font-size: 0.75rem; }
+    .ticket-card .validity-tag { font-size: 0.65rem; color: #64748b; margin-top: 4px; display: block; border-top: 1px dotted #cbd5e1; padding-top: 4px; }
+
+    /* Layout Otimizado para Scanner de Câmera */
+    #scanner {
+      justify-content: space-between;
+    }
+    #reader-container { 
+      width: 100%; 
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      max-height: 50vh;
+    }
+    #reader { 
+      width: 100%; 
+      max-width: 300px;
+      border-radius: 12px; 
+      overflow: hidden; 
+      background: #000; 
+    }
+    
+    .result-box { 
+      margin-top: 8px; 
+      padding: 8px; 
+      text-align: center; 
+      font-size: 0.9rem; 
+      font-weight: bold; 
+      border-radius: 8px; 
+      display: none; 
+      flex-shrink: 0;
+    }
+    .status-used { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .status-invalid { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+    /* Tabela de Ingressos com Scroll Interno */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #e2e8f0; padding: 6px 4px; text-align: center; font-size: 0.75rem; }
+    th { background: #f1f5f9; position: sticky; top: 0; }
+
+    /* --- POP-UP (MODAL DE ACESSO LIBERADO) --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .modal-content {
+      background: #16a34a; /* Fundo Verde */
+      color: white;
+      padding: 30px 20px;
+      border-radius: 16px;
+      text-align: center;
+      width: 85%;
+      max-width: 320px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      animation: popIn 0.25s ease-out;
+    }
+    .modal-content h3 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .modal-content p {
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+    .modal-content button {
+      background: white;
+      color: #16a34a;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Estilos de Impressão */
+    @media print {
+      html, body { height: auto; overflow: visible; }
+      .tabs, .form-group, h1, .no-print, #scanner, #dashboard, .counter-badge { display: none !important; }
+      .content-section { box-shadow: none; padding: 0; display: block !important; }
+      .tickets-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; overflow: visible; }
+      .ticket-card { page-break-inside: avoid; border: 1px solid #000; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <h1>Validador de Ingressos</h1>
+
+    <div class="tabs no-print">
+      <button class="tab-btn active" onclick="switchTab('generator', event)">Gerar</button>
+      <button class="tab-btn" onclick="switchTab('scanner', event)">Validar QR</button>
+      <button class="tab-btn" onclick="switchTab('dashboard', event)">Relatório</button>
+    </div>
+
+    <!-- ABA 1: GERADOR -->
+    <div id="generator" class="content-section active">
+      <h2>Gerar Ingressos</h2>
+      <div class="form-group no-print">
+        <input type="number" id="ticketCount" min="1" max="100" value="5">
+        <button class="action-btn" onclick="generateTickets()">Gerar</button>
+        <button class="action-btn" style="background: #475569;" onclick="window.print()">Imprimir</button>
+      </div>
+
+      <div id="ticketsContainer" class="tickets-grid"></div>
+    </div>
+
+    <!-- ABA 2: LEITOR/VALIDADOR -->
+    <div id="scanner" class="content-section">
+      <h2>Leitura de QR Code</h2>
+      
+      <div id="counterBadge" class="counter-badge">
+        Entradas: 0 / 0 (0%)
+      </div>
+
+      <div id="reader-container">
+        <div id="reader"></div>
+        <div class="form-group" style="margin-top: 10px;">
+          <button id="camToggleBtn" class="action-btn" style="background: #0284c7;" onclick="toggleCamera()">Ligar Câmera</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <input type="text" id="manualCode" placeholder="Código manual...">
+        <button class="action-btn" onclick="validateCode(document.getElementById('manualCode').value)">OK</button>
+      </div>
+
+      <div id="resultBox" class="result-box"></div>
+    </div>
+
+    <!-- ABA 3: DASHBOARD -->
+    <div id="dashboard" class="content-section">
+      <h2>Histórico</h2>
+      <div class="form-group">
+        <button class="action-btn" style="background: #dc2626;" onclick="resetSystem()">Limpar Banco</button>
+      </div>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Status</th>
+              <th>Validade</th>
+              <th>Entrada</th>
+            </tr>
+          </thead>
+          <tbody id="ticketsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- POP-UP (MODAL DE SUCESSO) -->
+  <div id="successModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Acesso liberado</h3>
+      <p id="modalTicketCode">Código: ---</p>
+      <button onclick="closeModal()">OK / Próximo</button>
+    </div>
+  </div>
+
+  <script>
+    // --- ESTADO DO SISTEMA (localStorage) ---
+    let db = JSON.parse(localStorage.getItem('ticketSystemDB')) || {
+      lastId: 1000,
+      tickets: {}
+    };
+
+    function saveDB() {
+      localStorage.setItem('ticketSystemDB', JSON.stringify(db));
+      updateCounterBadge();
+    }
+
+    function formatDate(dateObj) {
+      return dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    }
+
+    // --- SONS E FEEDBACK TÁTIL (Audio API + Vibration API) ---
+    function triggerFeedback(type) {
+      // Vibração
+      if (navigator.vibrate) {
+        if (type === 'success') {
+          navigator.vibrate(200); // Vibração única
+        } else {
+          navigator.vibrate([100, 50, 100]); // Vibração dupla para erro
+        }
+      }
+
+      // Som via Web Audio API
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'success') {
+          // Beep agudo (A5 - 880Hz)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.15);
+        } else {
+          // Beep grave duplo para erro (220Hz)
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.25);
+        }
+      } catch (e) {
+        console.log("Áudio não suportado ou bloqueado no navegador.");
+      }
+    }
+
+    // --- CARREGAMENTO INICIAL ---
+    window.addEventListener('DOMContentLoaded', () => {
+      renderStoredTickets();
+      updateCounterBadge();
+    });
+
+    function renderStoredTickets() {
+      const container = document.getElementById('ticketsContainer');
+      container.innerHTML = '';
+      
+      const keys = Object.keys(db.tickets);
+      if (keys.length === 0) return;
+
+      keys.forEach(code => {
+        createTicketCard(code, db.tickets[code], container);
+      });
+    }
+
+    function updateCounterBadge() {
+      const keys = Object.keys(db.tickets);
+      const total = keys.length;
+      const used = keys.filter(k => db.tickets[k].status === 'USED').length;
+      const percent = total > 0 ? Math.round((used / total) * 100) : 0;
+
+      document.getElementById('counterBadge').innerText = `Entradas: ${used} / ${total} (${percent}%)`;
+    }
+
+    // --- GERENCIADOR DA CÂMERA ---
+    let html5QrCode = null;
+    let isCameraActive = false;
+    let isProcessingScan = false;
+
+    async function toggleCamera() {
+      const btn = document.getElementById('camToggleBtn');
+
+      if (isCameraActive) {
+        await stopCamera();
+        btn.innerText = "Ligar Câmera";
+        btn.style.background = "#0284c7";
+      } else {
+        startCamera();
+      }
+    }
+
+    function startCamera() {
+      const btn = document.getElementById('camToggleBtn');
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+      }
+
+      const config = { fps: 10, qrbox: { width: 180, height: 180 } };
+
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          if (!isProcessingScan) {
+            validateCode(decodedText);
+          }
+        },
+        (errorMessage) => { /* Silenciar leituras sem código */ }
+      ).then(() => {
+        isCameraActive = true;
+        btn.innerText = "Desligar Câmera";
+        btn.style.background = "#dc2626";
+      }).catch(err => {
+        console.warn("Câmera traseira falhou, tentando alternativa...", err);
+        html5QrCode.start(
+          { facingMode: "user" },
+          config,
+          (decodedText) => {
+            if (!isProcessingScan) {
+              validateCode(decodedText);
+            }
+          }
+        ).then(() => {
+          isCameraActive = true;
+          btn.innerText = "Desligar Câmera";
+          btn.style.background = "#dc2626";
+        }).catch(err2 => {
+          alert("Erro ao acessar a câmera. Verifique as permissões do dispositivo.");
+          console.error(err2);
+        });
+      });
+    }
+
+    async function stopCamera() {
+      if (html5QrCode && isCameraActive) {
+        try {
+          await html5QrCode.stop();
+          isCameraActive = false;
+        } catch (err) {
+          console.error("Erro ao desligar câmera:", err);
+        }
+      }
+    }
+
+    // --- TROCA DE ABAS ---
+    function switchTab(tabId, event) {
+      document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+
+      if (tabId !== 'scanner') {
+        stopCamera();
+        const btn = document.getElementById('camToggleBtn');
+        btn.innerText = "Ligar Câmera";
+        btn.style.background = "#0284c7";
+      } else {
+        updateCounterBadge();
+      }
+
+      if (tabId === 'dashboard') {
+        renderDashboard();
+      }
+    }
+
+    // --- GERADOR DE INGRESSOS COM VALIDADE ---
+    function generateTickets() {
+      const count = parseInt(document.getElementById('ticketCount').value);
+      if (isNaN(count) || count < 1) return alert('Insira uma quantidade válida.');
+
+      const container = document.getElementById('ticketsContainer');
+
+      const now = new Date();
+      const validFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      const validUntil = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 23, 59, 59, 999);
+
+      for (let i = 0; i < count; i++) {
+        db.lastId++;
+        const ticketCode = `ING-${db.lastId}`;
+
+        db.tickets[ticketCode] = {
+          status: 'VALID',
+          usedAt: null,
+          validFrom: validFrom.toISOString(),
+          validUntil: validUntil.toISOString()
+        };
+
+        createTicketCard(ticketCode, db.tickets[ticketCode], container);
+      }
+
+      saveDB();
+    }
+
+    function createTicketCard(code, ticketData, container) {
+      const card = document.createElement('div');
+      card.className = 'ticket-card';
+      
+      const title = document.createElement('h3');
+      title.innerText = 'INGRESSO';
+
+      const codeText = document.createElement('p');
+      codeText.innerHTML = `<strong>Cód:</strong> ${code}`;
+
+      const qrDiv = document.createElement('div');
+      qrDiv.className = 'qr-container';
+
+      const validFromDate = new Date(ticketData.validFrom);
+      const validUntilDate = new Date(ticketData.validUntil);
+      
+      const validitySpan = document.createElement('span');
+      validitySpan.className = 'validity-tag';
+      validitySpan.innerText = `Válido: ${formatDate(validFromDate)} 00h a ${formatDate(validUntilDate)} 23h59`;
+
+      card.appendChild(title);
+      card.appendChild(qrDiv);
+      card.appendChild(codeText);
+      card.appendChild(validitySpan);
+      container.appendChild(card);
+
+      new QRCode(qrDiv, {
+        text: code,
+        width: 80,
+        height: 80
+      });
+    }
+
+    // --- LEITURA E VALIDAÇÃO ---
+    function validateCode(code) {
+      const cleanCode = code.trim().toUpperCase();
+      const resultBox = document.getElementById('resultBox');
+
+      if (!cleanCode) return;
+
+      isProcessingScan = true; // Impede leitura dupla rápida
+
+      const ticket = db.tickets[cleanCode];
+
+      if (!ticket) {
+        triggerFeedback('error');
+        resultBox.style.display = 'block';
+        resultBox.className = 'result-box status-invalid';
+        resultBox.innerHTML = `❌ INVÁLIDO!<br><small>(${cleanCode}) não encontrado.</small>`;
+        setTimeout(() => { isProcessingScan = false; }, 1500);
+        return;
+      }
+
+      const now = new Date();
+      const validFrom = new Date(ticket.validFrom);
+      const validUntil = new Date(ticket.validUntil);
+
+      if (now < validFrom) {
+        triggerFeedback('error');
+        resultBox.style.display = 'block';
+        resultBox.className = 'result-box status-invalid';
+        resultBox.innerHTML = `⚠️ AINDA NÃO VÁLIDO!<br><small>Início: ${formatDate(validFrom)} às 00:00</small>`;
+        setTimeout(() => { isProcessingScan = false; }, 2000);
+      } else if (now > validUntil) {
+        triggerFeedback('error');
+        resultBox.style.display = 'block';
+        resultBox.className = 'result-box status-invalid';
+        resultBox.innerHTML = `⏰ INGRESSO EXPIRADO!<br><small>Expirou em: ${formatDate(validUntil)} às 23:59</small>`;
+        setTimeout(() => { isProcessingScan = false; }, 2000);
+      } else if (ticket.status === 'USED') {
+        triggerFeedback('error');
+        resultBox.style.display = 'block';
+        resultBox.className = 'result-box status-used';
+        resultBox.innerHTML = `⚠️ JÁ UTILIZADO!<br><small>Lido em: ${ticket.usedAt}</small>`;
+        setTimeout(() => { isProcessingScan = false; }, 1500);
+      } else if (ticket.status === 'VALID') {
+        resultBox.style.display = 'none';
+        
+        ticket.status = 'USED';
+        ticket.usedAt = now.toLocaleString('pt-BR');
+        saveDB();
+
+        // Emite Beep + Vibração de Sucesso e abre Modal
+        triggerFeedback('success');
+        showSuccessModal(cleanCode);
+      }
+
+      document.getElementById('manualCode').value = '';
+    }
+
+    // --- CONTROLE DO POP-UP (MODAL) ---
+    function showSuccessModal(code) {
+      document.getElementById('modalTicketCode').innerText = `Código: ${code}`;
+      document.getElementById('successModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('successModal').style.display = 'none';
+      isProcessingScan = false; // Libera scanner
+    }
+
+    // --- DASHBOARD ---
+    function renderDashboard() {
+      const tbody = document.getElementById('ticketsTableBody');
+      tbody.innerHTML = '';
+
+      const keys = Object.keys(db.tickets);
+      if (keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">Nenhum ingresso gerado.</td></tr>';
+        return;
+      }
+
+      keys.forEach(code => {
+        const item = db.tickets[code];
+        const row = document.createElement('tr');
+
+        const statusBadge = item.status === 'VALID' 
+          ? '<span style="color: green; font-weight: bold;">Livre</span>' 
+          : '<span style="color: red; font-weight: bold;">Usado</span>';
+
+        const validFromDate = item.validFrom ? formatDate(new Date(item.validFrom)) : '-';
+        const validUntilDate = item.validUntil ? formatDate(new Date(item.validUntil)) : '-';
+
+        row.innerHTML = `
+          <td>${code}</td>
+          <td>${statusBadge}</td>
+          <td>${validFromDate} a ${validUntilDate}</td>
+          <td>${item.usedAt || '-'}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function resetSystem() {
+      if (confirm("Deseja apagar TODOS os ingressos do banco de dados?")) {
+        localStorage.removeItem('ticketSystemDB');
+        db = { lastId: 1000, tickets: {} };
+        document.getElementById('ticketsContainer').innerHTML = '';
+        renderDashboard();
+        updateCounterBadge();
+        alert("Sistema reiniciado.");
+      }
+    }
+  </script>
+</body>
+</html>
