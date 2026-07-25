@@ -1,0 +1,18 @@
+{
+  "name": "Validador de Ingressos QR",
+  "short_name": "Ingressos QR",
+  "description": "Sistema de leitura e validação de ingressos via QR Code",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3388/3388614.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
