@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Prova Online</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Font for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf library for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* REGRAS DE IMPRESSÃO CORRIGIDAS */
+        @media print {
+            /* Oculta elementos desnecessários na hora da impressão */
+            header, footer, .no-print, #screen-login, #screen-exam, #screen-admin, #prof-login-modal {
+                display: none !important;
+            }
+
+            /* Configurações da página impressa */
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            main {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Força a exibição e visibilidade da área de resultados */
+            #screen-result, #pdf-content-area {
+                display: block !important;
+                visibility: visible !important;
+                position: static !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Evita corte no meio das questões ao mudar de página */
+            .pdf-item {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-600 p-2 rounded-lg text-white">
+                    <i class="fa-solid font-bold fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Portal de Provas Online</h1>
+                    <p class="text-xs text-slate-400">Avaliação Acadêmica Digital</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <!-- Live Timer (Shown during exam) -->
+                <div id="header-timer" class="hidden items-center bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-amber-400 font-mono font-semibold text-sm">
+                    <i class="fa-regular fa-clock mr-2 animate-pulse"></i>
+                    <span id="timer-display">02:00:00</span>
+                </div>
+
+                <!-- Teacher Login Button -->
+                <button onclick="openProfModal()" class="text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-lg transition flex items-center space-x-2">
+                    <i class="fa-solid fa-user-shield text-brand-500"></i>
+                    <span class="hidden sm:inline">Área do Professor</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- STEP 1: Student Login / Identification Screen -->
+        <section id="screen-login" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100 mt-6">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-brand-50 text-brand-600 rounded-full mb-4">
+                    <i class="fa-solid fa-id-card text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900">Identificação do Aluno</h2>
+                <p class="text-slate-500 text-sm mt-1">Informe seus dados para iniciar a avaliação de 10 questões.</p>
+            </div>
+
+            <form id="student-login-form" onsubmit="startExam(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nome Completo <span class="text-red-500">*</span></label>
+                    <input type="text" id="student-name" required placeholder="Ex: Maria Silva Sauro" 
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Matrícula ou E-mail <span class="text-red-500">*</span></label>
+                    <input type="text" id="student-id" required placeholder="Ex: 2026109923 ou maria@escola.com" 
+                        class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-slate-800">
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-800 space-y-1">
+                    <p class="font-semibold flex items-center"><i class="fa-solid fa-circle-info mr-1.5"></i> Instruções Importantes:</p>
+                    <ul class="list-disc list-inside space-y-0.5 text-amber-700">
+                        <li>Duração máxima: <strong>2 Horas</strong>.</li>
+                        <li>Todas as <strong>10 questões</strong> são obrigatórias.</li>
+                        <li>Após o término do tempo, a prova será enviada automaticamente.</li>
+                    </ul>
+                </div>
+
+                <button type="submit" 
+                    class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-brand-500/25 transition duration-200 flex items-center justify-center space-x-2">
+                    <span>Iniciar Avaliação</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- STEP 2: Main Exam Screen -->
+        <section id="screen-exam" class="hidden space-y-6">
+            <!-- Top Exam Header Info -->
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold text-lg">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+                    <div>
+                        <h2 id="display-student-name" class="font-bold text-slate-900 text-lg">---</h2>
+                        <p class="text-xs text-slate-500">Matrícula/ID: <span id="display-student-id" class="font-mono">---</span></p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                    <div class="text-right">
+                        <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Progresso</span>
+                        <span id="progress-text" class="text-sm font-bold text-brand-600">0 / 10 respondidas</span>
+                    </div>
+                    <div class="w-28 bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200">
+                        <div id="progress-bar" class="bg-brand-600 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Form Container -->
+            <form id="exam-form" onsubmit="confirmFinishExam(event)" class="space-y-6">
+                <div id="questions-container" class="space-y-6">
+                    <!-- Dynamic Question Cards Inserted Here by JS -->
+                </div>
+
+                <!-- Error Notice Container -->
+                <div id="exam-error-box" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium items-center space-x-2">
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg"></i>
+                    <span id="exam-error-msg">Por favor, responda todas as 10 questões antes de finalizar.</span>
+                </div>
+
+                <!-- Submit Button Bar -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-lg sticky bottom-4 flex justify-between items-center z-20">
+                    <div class="text-xs text-slate-500">
+                        <i class="fa-solid fa-lock text-slate-400 mr-1"></i> Respostas registradas com segurança.
+                    </div>
+                    <button type="submit" 
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition flex items-center space-x-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Finalizar Prova</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- STEP 3: Result & PDF Screen -->
+        <section id="screen-result" class="hidden space-y-6">
+            <!-- Notice Banner -->
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-6 rounded-2xl text-center space-y-2 no-print">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full inline-flex items-center justify-center text-3xl mb-2">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Prova Finalizada com Sucesso!</h2>
+                <p class="text-sm text-emerald-700">Seu desempenho e respostas foram gravados individualmente.</p>
+            </div>
+
+            <!-- PDF Template Target Container -->
+            <div id="pdf-content-area" class="bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-slate-200 space-y-8">
+                <!-- PDF Header Info -->
+                <div class="border-b border-slate-200 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-brand-600 uppercase tracking-widest">Relatório Acadêmico</span>
+                        <h2 class="text-2xl font-bold text-slate-900">Gabarito & Resultado da Avaliação</h2>
+                        <p class="text-xs text-slate-500 mt-1">Data de conclusão: <span id="res-date" class="font-medium text-slate-700">--</span></p>
+                    </div>
+
+                    <!-- Final Score Badge -->
+                    <div class="bg-slate-900 text-white px-6 py-4 rounded-2xl text-center w-full sm:w-auto shadow-inner">
+                        <span class="text-xs uppercase text-slate-400 block font-semibold">Nota Final</span>
+                        <span id="res-score" class="text-3xl font-extrabold text-amber-400">0.0 / 10</span>
+                        <span id="res-hits" class="text-xs text-slate-300 block mt-0.5">0 de 10 acertos</span>
+                    </div>
+                </div>
+
+                <!-- Student Info Box in PDF -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm">
+                    <div>
+                        <span class="text-slate-400 block text-xs">Aluno:</span>
+                        <strong id="res-student-name" class="text-slate-800 text-base">---</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs">Matrícula / ID:</span>
+                        <strong id="res-student-id" class="text-slate-800 text-base font-mono">---</strong>
+                    </div>
+                </div>
+
+                <!-- Question Breakdown Summary -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-slate-800 text-lg border-b border-slate-100 pb-2">Detalhamento das Questões</h3>
+                    <div id="result-questions-list" class="space-y-4">
+                        <!-- Questions breakdown rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons (Hidden when downloading PDF or printing) -->
+            <div class="flex flex-col sm:flex-row justify-end items-center gap-4 no-print pt-4">
+                <button id="btn-download-pdf" onclick="downloadPDF()" 
+                    class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-file-pdf text-lg"></i>
+                    <span>Baixar Prova em PDF</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Teacher Login Password Modal -->
+    <div id="prof-login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-slate-100 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-2 text-brand-600 font-bold text-lg">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Acesso Docente</span>
+                </div>
+                <button onclick="closeProfModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 mb-4">Digite a senha do professor para gerenciar o gabarito e visualizar os relatórios dos alunos.</p>
+
+            <form onsubmit="authenticateTeacher(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Senha de Acesso</label>
+                    <input type="password" id="prof-password-input" required placeholder="Digite a senha..."
+                        class="w-full px-3.5 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-slate-800">
+                    <p class="text-[10px] text-slate-400 mt-1">Dica de senha inicial: <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-600">admin123</code></p>
+                </div>
+
+                <div id="prof-modal-error" class="hidden text-xs text-red-600 font-medium">
+                    Senha incorreta! Tente novamente.
+                </div>
+
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-xl transition">
+                    Entrar na Área do Professor
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Teacher Admin Fullscreen Drawer / Section -->
+    <section id="screen-admin" class="hidden fixed inset-0 bg-slate-100 z-50 overflow-y-auto">
+        <div class="bg-slate-900 text-white shadow-md sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-amber-500 text-slate-900 px-2.5 py-1 rounded-md text-xs font-bold uppercase">Painel Restrito</span>
+                    <h2 class="font-bold text-lg hidden sm:block">Gerenciamento do Professor</h2>
+                </div>
+                <button onclick="exitAdminPanel()" class="bg-red-600/80 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Sair da Área do Professor</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Admin Navigation Tabs -->
+            <div class="flex border-b border-slate-200 mb-6 bg-white rounded-t-xl p-2 gap-2 shadow-sm">
+                <button id="tab-btn-questions" onclick="switchAdminTab('questions')" 
+                    class="px-4 py-2.5 font-semibold text-sm rounded-lg transition flex items-center space-x-2 bg-brand-50 text-brand-600">
+                    <i class="fa-solid fa-file-pen"></i>
+                    <span>Gerenciador de Questões (10)</span>
+                </button>
+                <button id="tab-btn-results" onclick="switchAdminTab('results')" 
+                    class="px-4 py-2.5 font-semibold text-sm rounded-lg transition flex items-center space-x-2 text-slate-600 hover:bg-slate-50">
+                    <i class="fa-solid fa-users-viewfinder"></i>
+                    <span>Relatório de Alunos</span>
+                </button>
+                <button id="tab-btn-settings" onclick="switchAdminTab('settings')" 
+                    class="px-4 py-2.5 font-semibold text-sm rounded-lg transition flex items-center space-x-2 text-slate-600 hover:bg-slate-50">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Alterar Senha</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: Questions Editor -->
+            <div id="admin-tab-questions" class="space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Edição do Banco de Questões</h3>
+                        <p class="text-xs text-slate-500">Altere enunciados, opções (A a E) e defina a alternativa correta.</p>
+                    </div>
+                    <button onclick="saveQuestionsFromAdmin()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition flex items-center space-x-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Salvar Alterações de Prova</span>
+                    </button>
+                </div>
+
+                <div id="admin-questions-editor-list" class="space-y-6">
+                    <!-- Dynamic Question Editors Generated Here -->
+                </div>
+            </div>
+
+            <!-- TAB 2: Student Results Report -->
+            <div id="admin-tab-results" class="hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Histórico Geral de Submissões</h3>
+                        <p class="text-xs text-slate-500">Lista confidencial de todos os alunos que submeteram a prova neste dispositivo.</p>
+                    </div>
+                    <button onclick="clearStudentResults()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Zerar / Limpar Histórico</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-50 text-slate-700 uppercase font-semibold text-xs border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-4">Aluno</th>
+                                    <th class="px-6 py-4">Matrícula / ID</th>
+                                    <th class="px-6 py-4">Data / Hora</th>
+                                    <th class="px-6 py-4 text-center">Acertos</th>
+                                    <th class="px-6 py-4 text-center">Nota Final</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-results-table-body" class="divide-y divide-slate-100">
+                                <!-- Dynamic Student Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="empty-results-msg" class="p-8 text-center text-slate-400 text-sm hidden">
+                        Nenhum aluno realizou a prova até o momento.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Change Password -->
+            <div id="admin-tab-settings" class="hidden max-w-md bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h3 class="font-bold text-slate-800 text-lg">Segurança de Acesso</h3>
+                <form onsubmit="changeProfPassword(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nova Senha do Professor</label>
+                        <input type="password" id="new-prof-pass" required minlength="4" placeholder="Digite a nova senha"
+                            class="w-full px-3.5 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-slate-800">
+                    </div>
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition">
+                        Atualizar Senha
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 no-print">
+        <p>© 2026 Portal de Avaliação Online - Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // --- DEFAULT QUESTION BANK (10 Questions) ---
+        const DEFAULT_QUESTIONS = [
+            {
+                id: 1,
+                statement: "Qual é o objetivo principal do protocolo HTTP na Web?",
+                options: [
+                    "Formatador de estilo de páginas web",
+                    "Transferência de dados e comunicação entre cliente e servidor",
+                    "Compilação de códigos JavaScript no navegador",
+                    "Gerenciador de banco de dados relacional",
+                    "Criptografia exclusiva de emails"
+                ],
+                correctOption: 1 // Index 1 = Option B
+            },
+            {
+                id: 2,
+                statement: "Em HTML5, qual tag é semanticamente indicada para o cabeçalho principal de um documento ou seção?",
+                options: [
+                    "<top>",
+                    "<head>",
+                    "<header>",
+                    "<section>",
+                    "<navigation>"
+                ],
+                correctOption: 2
+            },
+            {
+                id: 3,
+                statement: "Qual propriedade CSS é utilizada para alterar a cor do texto de um elemento?",
+                options: [
+                    "background-color",
+                    "font-style",
+                    "text-align",
+                    "color",
+                    "display"
+                ],
+                correctOption: 3
+            },
+            {
+                id: 4,
+                statement: "Em JavaScript, qual estrutura de repetição executa um bloco de código enquanto uma condição for verdadeira?",
+                options: [
+                    "while",
+                    "if...else",
+                    "switch",
+                    "try...catch",
+                    "import"
+                ],
+                correctOption: 0
+            },
+            {
+                id: 5,
+                statement: "Qual das opções a seguir representa um banco de dados relacional (SQL)?",
+                options: [
+                    "MongoDB",
+                    "Redis",
+                    "PostgreSQL",
+                    "Cassandra",
+                    "Neo4j"
+                ],
+                correctOption: 2
+            },
+            {
+                id: 6,
+                statement: "O que a sigla CSS significa na área de desenvolvimento Web?",
+                options: [
+                    "Creative Style Sheets",
+                    "Cascading Style Sheets",
+                    "Computer System Style",
+                    "Compressed Structural Sheet",
+                    "Central Server Script"
+                ],
+                correctOption: 1
+            },
+            {
+                id: 7,
+                statement: "Qual seletor CSS é utilizado para selecionar um elemento pelo seu ID único?",
+                options: [
+                    "O caractere Ponto (.)",
+                    "O caractere Cerquilha/Sustenido (#)",
+                    "O caractere Cifrão ($)",
+                    "O caractere Arroba (@)",
+                    "O caractere Asterisco (*)"
+                ],
+                correctOption: 1
+            },
+            {
+                id: 8,
+                statement: "Qual é a principal função do Git em projetos de software?",
+                options: [
+                    "Hospedar sites dinâmicos gratuitamente",
+                    "Criar interfaces de usuário responsivas",
+                    "Sistema de controle de versão distribuído de código",
+                    "Antivírus automatizado para servidores",
+                    "Compilador de código C++"
+                ],
+                correctOption: 2
+            },
+            {
+                id: 9,
+                statement: "No JavaScript moderno (ES6+), qual palavra-chave permite declarar uma variável de escopo de bloco cujo valor não pode ser reatribuído?",
+                options: [
+                    "var",
+                    "let",
+                    "const",
+                    "static",
+                    "global"
+                ],
+                correctOption: 2
+            },
+            {
+                id: 10,
+                statement: "Qual método do objeto JSON em JavaScript converte uma string formatada em JSON de volta para um objeto JavaScript?",
+                options: [
+                    "JSON.stringify()",
+                    "JSON.parse()",
+                    "JSON.toObject()",
+                    "JSON.encode()",
+                    "JSON.convert()"
+                ],
+                correctOption: 1
+            }
+        ];
+
+        // --- GLOBAL APP STATE ---
+        let questions = [];
+        let currentStudent = { name: '', id: '' };
+        let studentAnswers = {}; // { questionId: optionIndex }
+        let timerInterval = null;
+        let totalSeconds = 2 * 60 * 60; // 2 Hours (7200 seconds)
+        let teacherPassword = 'admin123';
+        let examFinished = false;
+
+        window.onload = function() {
+            // Load custom password or use default
+            const savedPass = localStorage.getItem('prof_password');
+            if (savedPass) {
+                teacherPassword = savedPass;
+            }
+
+            // Load custom questions or set defaults
+            const savedQuestions = localStorage.getItem('exam_questions');
+            if (savedQuestions) {
+                try {
+                    questions = JSON.parse(savedQuestions);
+                } catch(e) {
+                    questions = [...DEFAULT_QUESTIONS];
+                }
+            } else {
+                questions = [...DEFAULT_QUESTIONS];
+                localStorage.setItem('exam_questions', JSON.stringify(questions));
+            }
+        };
+
+        // --- TIMER LOGIC ---
+        function startTimer() {
+            const display = document.getElementById('timer-display');
+            const headerTimer = document.getElementById('header-timer');
+            headerTimer.classList.remove('hidden');
+            headerTimer.classList.add('flex');
+
+            timerInterval = setInterval(() => {
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    display.innerText = "00:00:00";
+                    alert("O tempo de 2 horas para a realização da prova encerrou! Sua prova será finalizada automaticamente.");
+                    submitExam(true);
+                    return;
+                }
+
+                totalSeconds--;
+
+                const hrs = Math.floor(totalSeconds / 3600);
+                const mins = Math.floor((totalSeconds % 3600) / 60);
+                const secs = totalSeconds % 60;
+
+                display.innerText = 
+                    String(hrs).padStart(2, '0') + ':' + 
+                    String(mins).padStart(2, '0') + ':' + 
+                    String(secs).padStart(2, '0');
+
+                // Visual Warning if less than 10 mins
+                if (totalSeconds < 600) {
+                    headerTimer.classList.remove('text-amber-400', 'bg-slate-800');
+                    headerTimer.classList.add('text-red-400', 'bg-red-950/80', 'border-red-800');
+                }
+            }, 1000);
+        }
+
+        function startExam(event) {
+            event.preventDefault();
+
+            const nameInput = document.getElementById('student-name').value.trim();
+            const idInput = document.getElementById('student-id').value.trim();
+
+            if (!nameInput || !idInput) {
+                alert("Por favor, preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            currentStudent.name = nameInput;
+            currentStudent.id = idInput;
+
+            document.getElementById('display-student-name').innerText = currentStudent.name;
+            document.getElementById('display-student-id').innerText = currentStudent.id;
+
+            // Render Questions
+            renderStudentQuestions();
+
+            // Switch Screen
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-exam').classList.remove('hidden');
+
+            // Start Timer
+            startTimer();
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderStudentQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl shadow-sm border border-slate-200 transition-all duration-200 hover:border-slate-300";
+                card.id = `question-card-${q.id}`;
+
+                const letters = ['A', 'B', 'C', 'D', 'E'];
+
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHTML += `
+                        <label class="flex items-start space-x-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition group">
+                            <input type="radio" name="q_${q.id}" value="${optIdx}" onchange="selectAnswer(${q.id}, ${optIdx})" 
+                                class="mt-0.5 text-brand-600 focus:ring-brand-500 w-4 h-4 text-brand-600 border-slate-300">
+                            <span class="text-sm text-slate-800 font-medium leading-relaxed group-hover:text-slate-900">
+                                <strong class="text-slate-500 font-semibold mr-1.5">${letters[optIdx]})</strong> ${escapeHTML(opt)}
+                            </span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <span class="bg-brand-50 text-brand-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                            Questão ${index + 1}
+                        </span>
+                        <span id="status-badge-${q.id}" class="text-xs font-medium text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md">
+                            Pendente
+                        </span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-semibold text-slate-900 mb-5 leading-snug">
+                        ${escapeHTML(q.statement)}
+                    </h3>
+                    <div class="space-y-3">
+                        ${optionsHTML}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            updateProgress();
+        }
+
+        function selectAnswer(questionId, optionIdx) {
+            studentAnswers[questionId] = optionIdx;
+
+            // Update question status badge
+            const badge = document.getElementById(`status-badge-${questionId}`);
+            if (badge) {
+                badge.innerText = "Respondida";
+                badge.className = "text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md";
+            }
+
+            // Hide error box if visible
+            document.getElementById('exam-error-box').classList.add('hidden');
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(studentAnswers).length;
+            const total = questions.length;
+            const percentage = Math.round((answeredCount / total) * 100);
+
+            document.getElementById('progress-text').innerText = `${answeredCount} / ${total} respondidas`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function confirmFinishExam(event) {
+            event.preventDefault();
+
+            // Validate all questions are answered
+            const answeredCount = Object.keys(studentAnswers).length;
+            if (answeredCount < questions.length) {
+                const errorBox = document.getElementById('exam-error-box');
+                const errorMsg = document.getElementById('exam-error-msg');
+                errorMsg.innerText = `Você respondeu apenas ${answeredCount} de 10 questões. Nenhuma questão pode ficar em branco!`;
+                errorBox.classList.remove('hidden');
+                
+                // Highlight first unanswered question
+                for (let q of questions) {
+                    if (studentAnswers[q.id] === undefined) {
+                        const elem = document.getElementById(`question-card-${q.id}`);
+                        if (elem) elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        break;
+                    }
+                }
+                return;
+            }
+
+            if (confirm("Tem certeza de que deseja finalizar e entregar sua prova agora?")) {
+                submitExam(false);
+            }
+        }
+
+        function submitExam(forcedByTimer = false) {
+            if (examFinished) return;
+            examFinished = true;
+
+            clearInterval(timerInterval);
+            document.getElementById('header-timer').classList.add('hidden');
+
+            // Calculate Score
+            let hits = 0;
+            questions.forEach(q => {
+                const studentAns = studentAnswers[q.id];
+                if (studentAns !== undefined && studentAns === q.correctOption) {
+                    hits++;
+                }
+            });
+
+            const totalQuestions = questions.length;
+            const finalScore = (hits / totalQuestions) * 10;
+            const formattedDate = new Date().toLocaleString('pt-BR');
+
+            // Record result locally for Teacher's Panel
+            saveResultToStorage({
+                studentName: currentStudent.name,
+                studentId: currentStudent.id,
+                date: formattedDate,
+                hits: hits,
+                total: totalQuestions,
+                score: finalScore.toFixed(1)
+            });
+
+            // Display Results
+            document.getElementById('screen-exam').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            document.getElementById('res-student-name').innerText = currentStudent.name;
+            document.getElementById('res-student-id').innerText = currentStudent.id;
+            document.getElementById('res-date').innerText = formattedDate;
+            document.getElementById('res-score').innerText = `${finalScore.toFixed(1)} / 10`;
+            document.getElementById('res-hits').innerText = `${hits} de ${totalQuestions} acertos`;
+
+            renderResultQuestionsList();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Save result securely in local history
+        function saveResultToStorage(resultRecord) {
+            const existing = JSON.parse(localStorage.getItem('student_results') || '[]');
+            existing.unshift(resultRecord); // Add to beginning
+            localStorage.setItem('student_results', JSON.stringify(existing));
+        }
+
+        // Render result overview in PDF view
+        function renderResultQuestionsList() {
+            const container = document.getElementById('result-questions-list');
+            container.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+
+            questions.forEach((q, idx) => {
+                const studentChoice = studentAnswers[q.id];
+                const isCorrect = studentChoice === q.correctOption;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border pdf-item ${isCorrect ? 'bg-emerald-50/50 border-emerald-200' : 'bg-red-50/50 border-red-200'}`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-600">Questão ${idx + 1}</span>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${isCorrect ? '✓ CORRETA' : '✗ INCORRETA'}
+                        </span>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-800 mb-3">${escapeHTML(q.statement)}</p>
+                    <div class="text-xs space-y-1">
+                        <p class="text-slate-600">Sua Resposta: 
+                            <strong class="${isCorrect ? 'text-emerald-700' : 'text-red-700'}">
+                                ${studentChoice !== undefined ? letters[studentChoice] + ') ' + escapeHTML(q.options[studentChoice]) : 'Sem resposta'}
+                            </strong>
+                        </p>
+                        ${!isCorrect ? `<p class="text-slate-600">Gabarito Correto: <strong class="text-emerald-700">${letters[q.correctOption]})${escapeHTML(q.options[q.correctOption])}</strong></p>` : ''}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        async function downloadPDF() {
+            const btn = document.getElementById('btn-download-pdf');
+            const originalBtnText = btn.innerHTML;
+            
+            try {
+                // Visual feedback to student
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i> Gerando PDF...`;
+
+                const element = document.getElementById('pdf-content-area');
+                
+                // Clone the container to ensure it's completely rendered without modal/overflow issues
+                const clone = element.cloneNode(true);
+                clone.style.width = '790px'; // Exact standard A4 width target
+                clone.style.padding = '24px';
+                clone.style.position = 'absolute';
+                clone.style.left = '-9999px';
+                clone.style.top = '0';
+                clone.style.background = '#ffffff';
+                
+                document.body.appendChild(clone);
+
+                const opt = {
+                    margin:       [10, 10, 10, 10], // Margin in mm
+                    filename:     `Gabarito_Prova_${currentStudent.id || 'Aluno'}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { 
+                        scale: 2, 
+                        useCORS: true,
+                        logging: false,
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: 1024
+                    },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'], avoid: '.pdf-item' }
+                };
+
+                // Generate PDF and save
+                await html2pdf().set(opt).from(clone).save();
+
+                // Clean up cloned node
+                document.body.removeChild(clone);
+            } catch (err) {
+                console.error("Erro ao gerar PDF:", err);
+                alert("Ocorreu um problema ao gerar o PDF com a biblioteca. A caixa de impressão nativa será aberta.");
+                window.print();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText;
+            }
+        }
+
+        function openProfModal() {
+            document.getElementById('prof-login-modal').classList.remove('hidden');
+            document.getElementById('prof-password-input').value = '';
+            document.getElementById('prof-modal-error').classList.add('hidden');
+        }
+
+        function closeProfModal() {
+            document.getElementById('prof-login-modal').classList.add('hidden');
+        }
+
+        function authenticateTeacher(event) {
+            event.preventDefault();
+            const pass = document.getElementById('prof-password-input').value;
+
+            if (pass === teacherPassword) {
+                closeProfModal();
+                openAdminPanel();
+            } else {
+                document.getElementById('prof-modal-error').classList.remove('hidden');
+            }
+        }
+
+        function openAdminPanel() {
+            document.getElementById('screen-admin').classList.remove('hidden');
+            renderAdminQuestionsEditor();
+            renderAdminResultsTable();
+        }
+
+        function exitAdminPanel() {
+            document.getElementById('screen-admin').classList.add('hidden');
+        }
+
+        function switchAdminTab(tab) {
+            ['questions', 'results', 'settings'].forEach(t => {
+                document.getElementById(`admin-tab-${t}`).classList.add('hidden');
+                document.getElementById(`tab-btn-${t}`).classList.remove('bg-brand-50', 'text-brand-600');
+                document.getElementById(`tab-btn-${t}`).classList.add('text-slate-600');
+            });
+
+            document.getElementById(`admin-tab-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tab}`).classList.add('bg-brand-50', 'text-brand-600');
+            document.getElementById(`tab-btn-${tab}`).classList.remove('text-slate-600');
+        }
+
+        function renderAdminQuestionsEditor() {
+            const container = document.getElementById('admin-questions-editor-list');
+            container.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+
+            questions.forEach((q, qIndex) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4";
+
+                let optionsFields = '';
+                q.options.forEach((opt, optIdx) => {
+                    const isChecked = q.correctOption === optIdx ? 'checked' : '';
+                    optionsFields += `
+                        <div class="flex items-center space-x-3">
+                            <input type="radio" name="admin_correct_${q.id}" value="${optIdx}" ${isChecked} 
+                                title="Marcar como alternativa correta"
+                                class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-slate-300">
+                            <span class="font-bold text-xs text-slate-500 w-4">${letters[optIdx]}</span>
+                            <input type="text" id="admin_opt_${q.id}_${optIdx}" value="${escapeHTML(opt)}" 
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <span class="font-bold text-slate-800 text-sm">Questão ${qIndex + 1}</span>
+                        <span class="text-xs text-slate-400">Selecione o botão radial para marcar o gabarito correto</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Enunciado da Questão</label>
+                        <textarea id="admin_stmt_${q.id}" rows="2" 
+                            class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">${escapeHTML(q.statement)}</textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-700">Opções de Resposta</label>
+                        ${optionsFields}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function saveQuestionsFromAdmin() {
+            const updatedQuestions = [];
+
+            for (let i = 0; i < questions.length; i++) {
+                const q = questions[i];
+                const stmtInput = document.getElementById(`admin_stmt_${q.id}`).value.trim();
+                
+                const updatedOpts = [];
+                for (let optIdx = 0; optIdx < 5; optIdx++) {
+                    const optVal = document.getElementById(`admin_opt_${q.id}_${optIdx}`).value.trim();
+                    updatedOpts.push(optVal || `Opção ${optIdx + 1}`);
+                }
+
+                // Get selected correct option radio
+                const radios = document.getElementsByName(`admin_correct_${q.id}`);
+                let correctIdx = 0;
+                radios.forEach(r => {
+                    if (r.checked) correctIdx = parseInt(r.value);
+                });
+
+                updatedQuestions.push({
+                    id: q.id,
+                    statement: stmtInput || `Questão ${i + 1}`,
+                    options: updatedOpts,
+                    correctOption: correctIdx
+                });
+            }
+
+            questions = updatedQuestions;
+            localStorage.setItem('exam_questions', JSON.stringify(questions));
+            alert("Questões e gabarito salvos com sucesso!");
+        }
+
+        function renderAdminResultsTable() {
+            const tbody = document.getElementById('admin-results-table-body');
+            const emptyMsg = document.getElementById('empty-results-msg');
+            tbody.innerHTML = '';
+
+            const results = JSON.parse(localStorage.getItem('student_results') || '[]');
+
+            if (results.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                return;
+            } else {
+                emptyMsg.classList.add('hidden');
+            }
+
+            results.forEach(res => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-100 transition";
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-semibold text-slate-800">${escapeHTML(res.studentName)}</td>
+                    <td class="px-6 py-4 font-mono text-xs text-slate-500">${escapeHTML(res.studentId)}</td>
+                    <td class="px-6 py-4 text-xs text-slate-500">${res.date}</td>
+                    <td class="px-6 py-4 text-center font-bold text-slate-700">${res.hits} / ${res.total}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold ${parseFloat(res.score) >= 6 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${res.score}
+                        </span>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearStudentResults() {
+            if (confirm("Atenção: deseja realmente apagar o histórico de TODOS os alunos que responderam a prova? Esta ação não pode ser desfeita.")) {
+                localStorage.removeItem('student_results');
+                renderAdminResultsTable();
+            }
+        }
+
+        function changeProfPassword(event) {
+            event.preventDefault();
+            const newPass = document.getElementById('new-prof-pass').value.trim();
+            if (newPass.length < 4) {
+                alert("A senha precisa ter pelo menos 4 caracteres.");
+                return;
+            }
+
+            teacherPassword = newPass;
+            localStorage.setItem('prof_password', newPass);
+            alert("Senha do professor alterada com sucesso!");
+            document.getElementById('new-prof-pass').value = '';
+        }
+
+        // Utility helper to escape HTML and prevent XSS
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
