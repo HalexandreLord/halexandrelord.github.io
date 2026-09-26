@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Avaliações | Prof. Halexandre Lord</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0f172a',
+                            900: '#0b1120',
+                            950: '#050811',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+        .gradient-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1e1b4b 100%);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-slate-50 antialiased selection:bg-amber-100 selection:text-amber-900">
+
+    <header class="gradient-header text-white shadow-xl border-b border-amber-500/30 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                
+                <!-- Identificação do Docente -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-amber-400 to-amber-600 p-0.5 shadow-lg">
+                            <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
+                                <span class="text-2xl font-serif font-bold text-amber-400">HL</span>
+                            </div>
+                        </div>
+                        <span id="cloud-status-dot" class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-slate-400 border-2 border-slate-900 rounded-full" title="Verificando Conexão"></span>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-amber-500/20 text-amber-300 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-semibold border border-amber-500/30">
+                                Docente Executivo & Acadêmico
+                            </span>
+                            <span id="cloud-status-badge" class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono flex items-center gap-1 border border-slate-700">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Firebase
+                            </span>
+                        </div>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white mt-0.5">
+                            Prof. Halexandre Lord
+                        </h1>
+                        <p class="text-xs text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                            Portal de Avaliações em Tempo Real na Nuvem
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Seletor de Modo: Aluno / Professor & Config Firebase -->
+                <div class="flex items-center justify-between md:justify-end gap-2 border-t border-slate-700/60 pt-3 md:pt-0 md:border-0">
+                    <div class="bg-slate-900/90 p-1.5 rounded-xl border border-slate-700 flex items-center gap-1">
+                        <button id="nav-btn-student" onclick="switchRole('student')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow">
+                            <i class="fa-solid fa-user-graduate"></i>
+                            <span>Portal Aluno</span>
+                        </button>
+                        <button id="nav-btn-teacher" onclick="switchRole('teacher')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span>Área Professor</span>
+                        </button>
+                    </div>
+                    
+                    <button onclick="openFirebaseConfigModal()" class="p-2.5 bg-slate-800/80 hover:bg-slate-700 text-amber-400 hover:text-amber-300 rounded-xl border border-slate-700 text-xs transition-all" title="Configurar Conexão Firebase Nuvem">
+                        <i class="fa-solid fa-cloud-gear text-sm"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <!-- ========================================== -->
+        <!-- VISÃO 1: ALUNO - SELEÇÃO DE PROVA         -->
+        <!-- ========================================== -->
+        <div id="view-student-dashboard" class="space-y-8 transition-all duration-300">
+            
+            <!-- Banner de Aluno -->
+            <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                <div class="max-w-3xl">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 serif-title">
+                        Realização de Prova Online
+                    </h2>
+                    <p class="mt-2 text-slate-600 text-xs sm:text-sm leading-relaxed">
+                        Preencha seus dados institucionais e selecione uma das disciplinas ativas sincronizadas com a nuvem do Prof. Halexandre Lord. O tempo da prova iniciará imediatamente após o clique.
+                    </p>
+                </div>
+
+                <!-- Formulário Aluno -->
+                <div class="mt-6 pt-6 border-t border-slate-200/80 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                            Nome Completo do Aluno <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-user text-xs"></i>
+                            </span>
+                            <input type="text" id="student-name" placeholder="Ex: Maria Eduarda Santos" 
+                                class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                            R.A. / Matrícula <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-id-card text-xs"></i>
+                            </span>
+                            <input type="text" id="student-ra" placeholder="Ex: 20269874" 
+                                class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                            Turma / Semestre
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-users text-xs"></i>
+                            </span>
+                            <input type="text" id="student-turma" placeholder="Ex: Licenciatura - 4º Semestre" 
+                                class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Provas Ativas da Nuvem -->
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Provas Disponíveis (Tempo Real)</h3>
+                        <p class="text-xs text-slate-500">Selecione uma matéria cadastrada e publicada no Firebase</p>
+                    </div>
+                    <span id="exam-cards-count" class="text-xs font-semibold text-amber-900 bg-amber-100 px-3 py-1 rounded-full border border-amber-200">
+                        Carregando do Firebase...
+                    </span>
+                </div>
+
+                <div id="student-exams-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Injetado dinamicamente via Firestore -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VISÃO 2: ALUNO - EXECUÇÃO DA PROVA        -->
+        <!-- ========================================== -->
+        <div id="view-student-exam" class="hidden space-y-6 transition-all duration-300">
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 border border-amber-200">
+                        Sincronizado na Nuvem
+                    </span>
+                    <h2 id="exam-title" class="text-xl font-bold text-slate-900 mt-1">Título da Prova</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Aluno: <span id="exam-student-display" class="font-semibold text-slate-800">---</span> | R.A.: <span id="exam-ra-display" class="font-semibold text-slate-800">---</span></p>
+                </div>
+
+                <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
+                    <div class="text-right">
+                        <span class="text-[10px] text-slate-400 font-semibold uppercase block">Tempo Restante</span>
+                        <span id="timer" class="text-2xl font-mono font-bold text-slate-900">00:00</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-lg shadow-sm">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de Progresso -->
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center text-xs text-slate-600 mb-2">
+                    <span>Progresso das Respostas</span>
+                    <span class="font-semibold"><span id="answered-count">0</span> de <span id="total-questions-count">0</span> respondidas</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-amber-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Questões da Prova -->
+            <div id="questions-container" class="space-y-6"></div>
+
+            <div class="flex items-center justify-between pt-4 bg-slate-100/80 p-4 rounded-2xl border border-slate-200">
+                <button onclick="cancelExam()" class="text-xs text-slate-500 hover:text-red-600 font-medium px-4 py-2 transition-colors">
+                    <i class="fa-solid fa-xmark mr-1"></i> Cancelar e Sair
+                </button>
+                <button onclick="submitExam()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-emerald-600/20 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Enviar Prova para o Professor</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VISÃO 3: ALUNO - RESULTADO DA PROVA       -->
+        <!-- ========================================== -->
+        <div id="view-student-result" class="hidden space-y-6 max-w-4xl mx-auto transition-all duration-300">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-slate-200 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-3 bg-emerald-500"></div>
+
+                <div class="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+
+                <h2 class="text-2xl font-bold text-slate-900 serif-title">Prova Entregue com Sucesso!</h2>
+                <p class="text-slate-500 text-xs sm:text-sm mt-1">Sua avaliação foi enviada diretamente para o banco de dados do Prof. Halexandre Lord.</p>
+
+                <div class="my-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 max-w-md mx-auto">
+                    <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Nota Registrada</span>
+                    <div class="text-4xl sm:text-5xl font-extrabold text-slate-900 my-2" id="result-score">0.0</div>
+                    <span id="result-status-badge" class="inline-block text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800">
+                        Status
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left text-xs text-slate-600 border-t border-slate-100 pt-4">
+                    <div>
+                        <span class="text-slate-400 block">Aluno(a)</span>
+                        <strong id="result-student-name" class="text-slate-800">---</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">R.A.</span>
+                        <strong id="result-student-ra" class="text-slate-800">---</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">Disciplina</span>
+                        <strong id="result-subject" class="text-slate-800">---</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">Data/Hora</span>
+                        <strong id="result-timestamp" class="text-slate-800">---</strong>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-left border-t border-slate-200 pt-6">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-amber-600"></i>
+                        Gabarito Detalhado
+                    </h4>
+                    <div id="result-gabarito-list" class="space-y-4"></div>
+                </div>
+
+                <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center border-t border-slate-100 pt-6">
+                    <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-print"></i> Imprimir Comprovante
+                    </button>
+                    <button onclick="switchRole('student')" class="bg-slate-900 hover:bg-amber-600 text-white text-xs font-semibold px-6 py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-house"></i> Voltar ao Início
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VISÃO 4: PROFESSOR - AUTH PIN             -->
+        <!-- ========================================== -->
+        <div id="view-teacher-auth" class="hidden max-w-md mx-auto my-12 transition-all duration-300">
+            <div class="bg-white rounded-2xl p-8 shadow-xl border border-slate-200 text-center">
+                <div class="w-16 h-16 bg-slate-900 text-amber-400 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg mb-4">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900">Acesso Restrito do Professor</h2>
+                <p class="text-xs text-slate-500 mt-1 mb-6">Digite a senha / PIN docente do Prof. Halexandre Lord (PIN Padrão: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-800 font-bold">1234</span>)</p>
+
+                <form onsubmit="handleTeacherLogin(event)" class="space-y-4">
+                    <div>
+                        <input type="password" id="teacher-pin" maxlength="10" placeholder="Insira o PIN secreto" required
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-300 text-center font-mono text-xl tracking-widest rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl shadow-md transition-all text-xs sm:text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-right-to-bracket"></i> Autenticar e Entrar no Painel
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VISÃO 5: PAINEL ADMINISTRATIVO PROFESSOR  -->
+        <!-- ========================================== -->
+        <div id="view-teacher-panel" class="hidden space-y-8 transition-all duration-300">
+            
+            <div class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-md font-semibold border border-amber-500/30">
+                        Painel Docente em Tempo Real (Firebase)
+                    </span>
+                    <h2 class="text-2xl font-bold mt-2">Bem-vindo, Prof. Halexandre Lord</h2>
+                    <p class="text-xs text-slate-400 mt-1">Gerencie provas na nuvem e acompanhe as submissões dos alunos instantaneamente.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openExamModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl shadow text-xs transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Criar Nova Prova
+                    </button>
+                    <button onclick="logoutTeacher()" class="bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white px-3 py-2.5 rounded-xl text-xs transition-all" title="Sair do Modo Professor">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Abas do Painel -->
+            <div class="border-b border-slate-200 flex space-x-6">
+                <button id="tab-btn-exams" onclick="switchTeacherTab('exams')" class="pb-3 text-sm font-bold border-b-2 border-amber-500 text-amber-600 flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open"></i> Provas na Nuvem (<span id="tab-count-exams">0</span>)
+                </button>
+                <button id="tab-btn-reports" onclick="switchTeacherTab('reports')" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line"></i> Submissões de Alunos (<span id="tab-count-submissions">0</span>)
+                </button>
+            </div>
+
+            <!-- ABA 1: GERENCIADOR DE PROVAS -->
+            <div id="teacher-tab-exams" class="space-y-6">
+                <div id="teacher-exams-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Injetado dinamicamente -->
+                </div>
+            </div>
+
+            <!-- ABA 2: RELATÓRIO DE NOTAS DO FIREBASE -->
+            <div id="teacher-tab-reports" class="hidden space-y-6">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                        <span class="text-xs text-slate-400 font-semibold uppercase">Total de Provas Entregues</span>
+                        <div id="stat-total-submissions" class="text-3xl font-extrabold text-slate-900 mt-1">0</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                        <span class="text-xs text-slate-400 font-semibold uppercase">Média Geral das Notas</span>
+                        <div id="stat-avg-score" class="text-3xl font-extrabold text-amber-600 mt-1">0.0</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                        <span class="text-xs text-slate-400 font-semibold uppercase">Taxa de Aprovação (≥ 6.0)</span>
+                        <div id="stat-pass-rate" class="text-3xl font-extrabold text-emerald-600 mt-1">0%</div>
+                    </div>
+                </div>
+
+                <!-- Filtros da Tabela -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                        <div class="relative w-full sm:w-64">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </span>
+                            <input type="text" id="filter-search" oninput="renderReportsTable()" placeholder="Buscar por Aluno ou R.A..." 
+                                class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                        <select id="filter-subject" onchange="renderReportsTable()" class="w-full sm:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <option value="">Todas as Disciplinas</option>
+                        </select>
+                    </div>
+
+                    <button onclick="exportReportsCSV()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-csv text-emerald-600"></i> Exportar Notas (CSV)
+                    </button>
+                </div>
+
+                <!-- Tabela de Submissões -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 uppercase font-bold tracking-wider">
+                                <tr>
+                                    <th class="p-4">Aluno(a)</th>
+                                    <th class="p-4">R.A. / Turma</th>
+                                    <th class="p-4">Disciplina / Prova</th>
+                                    <th class="p-4">Data / Hora</th>
+                                    <th class="p-4 text-center">Nota</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reports-table-body" class="divide-y divide-slate-100">
+                                <!-- Injetado dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL 1: EDITAR/CRIAR PROVA -->
+    <div id="modal-exam" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-200 p-6 sm:p-8">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                <h3 id="modal-exam-title" class="text-lg font-bold text-slate-900">Configurar Prova na Nuvem</h3>
+                <button onclick="closeExamModal()" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="saveExamForm(event)" class="space-y-4">
+                <input type="hidden" id="form-exam-id">
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-700 mb-1">Título da Disciplina / Prova</label>
+                    <input type="text" id="form-exam-title" required placeholder="Ex: Economia Aplicada à Educação" 
+                        class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-700 mb-1">Duração (Minutos)</label>
+                        <input type="number" id="form-exam-duration" min="1" max="180" value="15" required 
+                            class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-700 mb-1">Descrição Curta</label>
+                        <input type="text" id="form-exam-desc" required placeholder="Ex: Avaliação de conceitos macroeconômicos" 
+                            class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 pt-6 mt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold text-slate-900">Questões da Avaliação</h4>
+                        <button type="button" onclick="addQuestionToForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-amber-600"></i> Adicionar Questão
+                        </button>
+                    </div>
+
+                    <div id="form-questions-container" class="space-y-6"></div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeExamModal()" class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-2.5 text-xs rounded-xl shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Salvar no Firebase
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CONFIGURAÇÃO FIREBASE -->
+    <div id="modal-firebase-config" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 p-6 sm:p-8">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-cloud text-amber-600 text-xl"></i>
+                    <h3 class="text-base font-bold text-slate-900">Configurar Conexão Firebase Nuvem</h3>
+                </div>
+                <button onclick="closeFirebaseConfigModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed mb-4">
+                Insira as credenciais do seu projeto do <strong>Google Firebase (Firestore Database)</strong>. Suas credenciais serão salvas com segurança no navegador e permitirão sincronizar as provas e notas em tempo real.
+            </p>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-900 mb-4 space-y-1">
+                <p class="font-bold flex items-center gap-1"><i class="fa-solid fa-shield-halved text-amber-600"></i> Dica para evitar erro de Permissão (Permission Denied):</p>
+                <p>No console do Firebase (<strong>Firestore Database &gt; Regras</strong>), permita leitura e escrita durante os testes:</p>
+                <code class="block bg-amber-100 p-1.5 rounded text-amber-950 font-mono text-[10px]">allow read, write: if true;</code>
+            </div>
+
+            <form onsubmit="saveFirebaseCredentials(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-700 mb-0.5">apiKey</label>
+                    <input type="text" id="fb-apiKey" placeholder="AIzaSy..." required class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-700 mb-0.5">authDomain</label>
+                        <input type="text" id="fb-authDomain" placeholder="seu-projeto.firebaseapp.com" required class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-700 mb-0.5">projectId</label>
+                        <input type="text" id="fb-projectId" placeholder="seu-projeto-id" required class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-700 mb-0.5">storageBucket</label>
+                        <input type="text" id="fb-storageBucket" placeholder="seu-projeto.appspot.com" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-700 mb-0.5">appId</label>
+                        <input type="text" id="fb-appId" placeholder="1:123456789:web:abc..." required class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-between">
+                    <button type="button" onclick="loadDemoFirebaseConfig()" class="text-xs text-amber-700 hover:underline font-semibold">
+                        Usar Configuração Demo
+                    </button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeFirebaseConfigModal()" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+                        <button type="submit" class="bg-slate-900 hover:bg-amber-600 text-white font-bold px-4 py-2 text-xs rounded-xl shadow">Conectar e Salvar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-serif text-amber-400 font-bold text-sm">Prof. Halexandre Lord</span>
+                <span>• Gestão Acadêmica Integrada ao Firebase Nuvem &copy; 2026</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span>PIN Professor: 1234</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- FIREBASE V10 SDK (ES MODULES) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            deleteDoc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Provas Padrão para Início do Sistema
+        const DEFAULT_EXAMS = {
+            "economia": {
+                id: "economia",
+                title: "Economia Aplicada à Educação",
+                durationMinutes: 15,
+                description: "Avaliação de fundamentos micro e macroeconômicos, financiamento público do ensino, FUNDEB e retorno do capital humano.",
+                questions: [
+                    {
+                        id: 1,
+                        type: "multiple",
+                        text: "De acordo com a teoria do Capital Humano (Schultz e Becker), qual é a principal premissa sobre o investimento em educação?",
+                        options: [
+                            "A educação é apenas um consumo cultural sem impacto direto na produtividade.",
+                            "Os gastos em educação são investimentos que aumentam a produtividade individual e geram retornos econômicos sociais.",
+                            "A educação reduz a eficiência econômica ao adiar a entrada dos jovens no mercado.",
+                            "O investimento educacional deve ser exclusivamente mantido pela iniciativa privada."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        id: 2,
+                        type: "multiple",
+                        text: "Qual o papel central do FUNDEB na estrutura de financiamento da educação básica no Brasil?",
+                        options: [
+                            "Financiar exclusivamente programas de pós-graduação no exterior.",
+                            "Garantir a redistribuição equitativa de recursos para a educação básica com complementação financeira da União.",
+                            "Subsidiar uniformes para escolas exclusivamente privadas.",
+                            "Isentar impostos das corporações educacionais do terceiro setor."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        id: 3,
+                        type: "essay",
+                        text: "Explique o conceito de 'Custo de Oportunidade' no contexto do abandono e da evasão escolar no ensino médio.",
+                        correctAnswerGuide: "O aluno deve mencionar que a evasão traz ganhos imediatos baixos em troca de perdas salariais significativas no longo prazo."
+                    }
+                ]
+            },
+            "pedagogia": {
+                id: "pedagogia",
+                title: "Pedagogia Hospitalar",
+                durationMinutes: 15,
+                description: "Exame sobre atendimento educacional hospitalar e domiciliário, humanização de cuidados e reintegração escolar.",
+                questions: [
+                    {
+                        id: 1,
+                        type: "multiple",
+                        text: "A Pedagogia Hospitalar visa garantir a continuidade da aprendizagem da criança internada. Qual o objetivo principal da Classe Hospitalar?",
+                        options: [
+                            "Substituir o tratamento médico hospitalar por aulas de reforço.",
+                            "Manter o vínculo do aluno com sua escolarização e promover o apoio psicoemocional durante a internação.",
+                            "Isolar o aluno da família para focar nos livros didáticos.",
+                            "Aplicar testes punitivos de nivelamento acadêmico."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        id: 2,
+                        type: "essay",
+                        text: "Quais aspectos devem ser considerados pelo pedagogo ao flexibilizar o currículo escolar para um estudante hospitalizado?",
+                        correctAnswerGuide: "Deve-se considerar a condição de saúde, fadiga, horários de medicação e estado emocional da criança."
+                    }
+                ]
+            }
+        };
+
+        // Estado Global do App
+        let db = null;
+        let firebaseApp = null;
+        let isFirebaseConnected = false;
+        
+        window.examsData = {};
+        window.submissionsData = [];
+
+        // Inicializar Firebase
+        function initFirebase() {
+            const savedConfig = localStorage.getItem('halexandre_firebase_config');
+            let config = null;
+
+            if (savedConfig) {
+                try {
+                    config = JSON.parse(savedConfig);
+                } catch(e) {}
+            }
+
+            // Verificar se são chaves demonstrativas fictícias
+            const isDemoConfig = !config || !config.apiKey || config.apiKey.includes("DemoKey") || config.projectId === "prof-halexandre-portal";
+
+            if (isDemoConfig) {
+                // Em modo demonstrativo sem chaves reais do usuário, utiliza modo local diretamente
+                isFirebaseConnected = false;
+                updateCloudStatusUI(false, "Modo Local / Demo");
+                fallbackToLocalStorage();
+                return;
+            }
+
+            try {
+                firebaseApp = initializeApp(config);
+                db = getFirestore(firebaseApp);
+                setupRealtimeListeners();
+            } catch (error) {
+                console.warn("Firebase operando em modo simulação local:", error);
+                isFirebaseConnected = false;
+                updateCloudStatusUI(false, "Modo Local / Simulado");
+                fallbackToLocalStorage();
+            }
+        }
+
+        // Listener em Tempo Real (Firestore)
+        function setupRealtimeListeners() {
+            if (!db) return;
+
+            // 1. Escutar Provas
+            onSnapshot(collection(db, "provas"), (snapshot) => {
+                isFirebaseConnected = true;
+                const config = JSON.parse(localStorage.getItem('halexandre_firebase_config') || '{}');
+                updateCloudStatusUI(true, config.projectId || '');
+
+                const exams = {};
+                snapshot.forEach((doc) => {
+                    exams[doc.id] = doc.data();
+                });
+
+                // Se a coleção estiver vazia no Firebase, semeia com as provas padrão
+                if (Object.keys(exams).length === 0) {
+                    seedDefaultExams();
+                } else {
+                    window.examsData = exams;
+                    renderStudentExamsGrid();
+                    renderTeacherExamsList();
+                    populateSubjectFilter();
+                }
+            }, (error) => {
+                console.warn("Firestore sem acesso / permissão negada:", error);
+                isFirebaseConnected = false;
+                updateCloudStatusUI(false, "Permissão Firestore Negada");
+                fallbackToLocalStorage();
+            });
+
+            // 2. Escutar Submissões de Alunos
+            onSnapshot(collection(db, "submissoes"), (snapshot) => {
+                const subs = [];
+                snapshot.forEach((doc) => {
+                    subs.push(doc.data());
+                });
+                window.submissionsData = subs;
+                renderReportsTable();
+            }, (error) => {
+                console.warn("Erro ao escutar Firestore Submissões:", error);
+            });
+        }
+
+        async function seedDefaultExams() {
+            if (!db) return;
+            try {
+                for (let key in DEFAULT_EXAMS) {
+                    await setDoc(doc(db, "provas", key), DEFAULT_EXAMS[key]);
+                }
+            } catch(e) {
+                console.warn("Não foi possível semear dados no Firebase:", e);
+            }
+        }
+
+        function fallbackToLocalStorage() {
+            window.examsData = JSON.parse(localStorage.getItem('halexandre_exams')) || DEFAULT_EXAMS;
+            window.submissionsData = JSON.parse(localStorage.getItem('halexandre_submissions')) || [];
+            renderStudentExamsGrid();
+            renderTeacherExamsList();
+            renderReportsTable();
+            populateSubjectFilter();
+        }
+
+        function updateCloudStatusUI(connected, customText = "") {
+            const dot = document.getElementById('cloud-status-dot');
+            const badge = document.getElementById('cloud-status-badge');
+
+            if (connected) {
+                dot.className = "absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full animate-pulse";
+                badge.className = "bg-emerald-950 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-mono flex items-center gap-1 border border-emerald-800";
+                badge.innerHTML = `<i class="fa-solid fa-cloud"></i> Firebase: ${customText}`;
+            } else {
+                dot.className = "absolute bottom-0 right-0 w-3.5 h-3.5 bg-amber-500 border-2 border-slate-900 rounded-full";
+                badge.className = "bg-amber-950 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-mono flex items-center gap-1 border border-amber-800";
+                badge.innerHTML = `<i class="fa-solid fa-hard-drive"></i> ${customText || 'Modo Local / Simulado'}`;
+            }
+        }
+
+        // FUNÇÃO DE SALVAMENTO NO FIREBASE (OU LOCAL)
+        window.saveExamToCloud = async function(examObj) {
+            if (isFirebaseConnected && db) {
+                await setDoc(doc(db, "provas", examObj.id), examObj);
+            } else {
+                window.examsData[examObj.id] = examObj;
+                localStorage.setItem('halexandre_exams', JSON.stringify(window.examsData));
+                renderStudentExamsGrid();
+                renderTeacherExamsList();
+            }
+        };
+
+        window.deleteExamFromCloud = async function(examId) {
+            if (isFirebaseConnected && db) {
+                await deleteDoc(doc(db, "provas", examId));
+            } else {
+                delete window.examsData[examId];
+                localStorage.setItem('halexandre_exams', JSON.stringify(window.examsData));
+                renderStudentExamsGrid();
+                renderTeacherExamsList();
+            }
+        };
+
+        window.submitExamToCloud = async function(submissionObj) {
+            if (isFirebaseConnected && db) {
+                await setDoc(doc(db, "submissoes", submissionObj.id.toString()), submissionObj);
+            } else {
+                window.submissionsData.push(submissionObj);
+                localStorage.setItem('halexandre_submissions', JSON.stringify(window.submissionsData));
+                renderReportsTable();
+            }
+        };
+
+        window.deleteSubmissionFromCloud = async function(subId) {
+            if (isFirebaseConnected && db) {
+                await deleteDoc(doc(db, "submissoes", subId.toString()));
+            } else {
+                window.submissionsData = window.submissionsData.filter(s => s.id !== subId);
+                localStorage.setItem('halexandre_submissions', JSON.stringify(window.submissionsData));
+                renderReportsTable();
+            }
+        };
+
+        window.saveFirebaseCredentials = function(e) {
+            e.preventDefault();
+            const config = {
+                apiKey: document.getElementById('fb-apiKey').value.trim(),
+                authDomain: document.getElementById('fb-authDomain').value.trim(),
+                projectId: document.getElementById('fb-projectId').value.trim(),
+                storageBucket: document.getElementById('fb-storageBucket').value.trim(),
+                appId: document.getElementById('fb-appId').value.trim()
+            };
+
+            localStorage.setItem('halexandre_firebase_config', JSON.stringify(config));
+            alert("Credenciais salvas! Recarregando conexão...");
+            location.reload();
+        };
+
+        window.loadDemoFirebaseConfig = function() {
+            document.getElementById('fb-apiKey').value = "AIzaSyDemoKeyHalexandreLord2026Format";
+            document.getElementById('fb-authDomain').value = "prof-halexandre-portal.firebaseapp.com";
+            document.getElementById('fb-projectId').value = "prof-halexandre-portal";
+            document.getElementById('fb-storageBucket').value = "prof-halexandre-portal.appspot.com";
+            document.getElementById('fb-appId').value = "1:1020304050:web:abcdef123456";
+        };
+
+        // Iniciar
+        initFirebase();
+    </script>
+
+    <!-- ENGINE DE LÓGICA DE INTERFACE -->
+    <script>
+        let teacherAuthenticated = false;
+        let currentExamId = null;
+        let userAnswers = {};
+        let timerInterval = null;
+        let timeRemainingSeconds = 0;
+        let studentProfile = { name: '', ra: '', turma: '' };
+
+        function switchRole(role) {
+            const btnStudent = document.getElementById('nav-btn-student');
+            const btnTeacher = document.getElementById('nav-btn-teacher');
+
+            if (role === 'student') {
+                btnStudent.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow";
+                btnTeacher.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1.5";
+
+                document.getElementById('view-teacher-auth').classList.add('hidden');
+                document.getElementById('view-teacher-panel').classList.add('hidden');
+                document.getElementById('view-student-exam').classList.add('hidden');
+                document.getElementById('view-student-result').classList.add('hidden');
+                document.getElementById('view-student-dashboard').classList.remove('hidden');
+                renderStudentExamsGrid();
+            } else {
+                btnTeacher.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow";
+                btnStudent.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1.5";
+
+                document.getElementById('view-student-dashboard').classList.add('hidden');
+                document.getElementById('view-student-exam').classList.add('hidden');
+                document.getElementById('view-student-result').classList.add('hidden');
+
+                if (teacherAuthenticated) {
+                    document.getElementById('view-teacher-panel').classList.remove('hidden');
+                    renderTeacherPanel();
+                } else {
+                    document.getElementById('view-teacher-auth').classList.remove('hidden');
+                }
+            }
+        }
+
+        function handleTeacherLogin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('teacher-pin').value;
+            if (pin === '1234') {
+                teacherAuthenticated = true;
+                document.getElementById('view-teacher-auth').classList.add('hidden');
+                document.getElementById('view-teacher-panel').classList.remove('hidden');
+                renderTeacherPanel();
+            } else {
+                alert("PIN incorreto. Digite 1234 para acessar.");
+            }
+        }
+
+        function logoutTeacher() {
+            teacherAuthenticated = false;
+            document.getElementById('teacher-pin').value = '';
+            switchRole('student');
+        }
+
+        function renderStudentExamsGrid() {
+            const grid = document.getElementById('student-exams-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const keys = Object.keys(window.examsData || {});
+            document.getElementById('exam-cards-count').innerText = `${keys.length} Provas Ativas na Nuvem`;
+
+            if (keys.length === 0) {
+                grid.innerHTML = `<p class="col-span-2 text-center text-slate-400 py-8 text-xs">Nenhuma prova encontrada no Firebase.</p>`;
+                return;
+            }
+
+            keys.forEach(key => {
+                const exam = window.examsData[key];
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-book-bookmark"></i>
+                            </span>
+                            <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-medium">
+                                ${exam.durationMinutes} Minutos
+                            </span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-900 group-hover:text-amber-600 transition-colors">${exam.title}</h4>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">${exam.description}</p>
+                        <p class="text-xs text-slate-400 font-semibold mt-4"><i class="fa-solid fa-circle-question mr-1"></i> ${exam.questions ? exam.questions.length : 0} Questões</p>
+                    </div>
+                    <button onclick="startStudentExam('${exam.id}')" class="mt-6 w-full bg-slate-900 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-2">
+                        <span>Iniciar Avaliação</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function startStudentExam(examId) {
+            const name = document.getElementById('student-name').value.trim();
+            const ra = document.getElementById('student-ra').value.trim();
+            const turma = document.getElementById('student-turma').value.trim();
+
+            if (!name || !ra) {
+                alert("Preencha o Nome Completo e R.A. antes de iniciar a prova.");
+                return;
+            }
+
+            studentProfile = { name, ra, turma: turma || 'Geral' };
+            currentExamId = examId;
+            userAnswers = {};
+
+            const exam = window.examsData[examId];
+
+            document.getElementById('exam-title').innerText = exam.title;
+            document.getElementById('exam-student-display').innerText = studentProfile.name;
+            document.getElementById('exam-ra-display').innerText = studentProfile.ra;
+
+            renderQuestions(exam.questions || []);
+            updateProgress();
+
+            timeRemainingSeconds = (exam.durationMinutes || 15) * 60;
+            startTimer();
+
+            document.getElementById('view-student-dashboard').classList.add('hidden');
+            document.getElementById('view-student-exam').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQuestions(questions) {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            document.getElementById('total-questions-count').innerText = questions.length;
+
+            questions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-6 shadow-sm border border-slate-200";
+
+                let content = `
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                            Questão 0${idx + 1} (${q.type === 'essay' ? 'Dissertativa' : 'Múltipla Escolha'})
+                        </span>
+                    </div>
+                    <h3 class="text-xs sm:text-sm font-semibold text-slate-900 mb-4">${q.text}</h3>
+                `;
+
+                if (q.type === 'multiple') {
+                    (q.options || []).forEach((opt, optIdx) => {
+                        content += `
+                            <label class="flex items-start p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-all mb-2 text-xs text-slate-700">
+                                <input type="radio" name="question_${q.id}" value="${optIdx}" onchange="selectMultipleAnswer(${q.id}, ${optIdx})" class="mt-0.5 text-amber-600 focus:ring-amber-500">
+                                <span class="ml-3">${opt}</span>
+                            </label>
+                        `;
+                    });
+                } else {
+                    content += `
+                        <textarea oninput="saveEssayAnswer(${q.id}, this.value)" placeholder="Digite sua resposta dissertativa aqui..." 
+                            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 h-28"></textarea>
+                    `;
+                }
+
+                card.innerHTML = content;
+                container.appendChild(card);
+            });
+        }
+
+        function selectMultipleAnswer(questionId, optionIndex) {
+            userAnswers[questionId] = optionIndex;
+            updateProgress();
+        }
+
+        function saveEssayAnswer(questionId, text) {
+            if (text.trim().length > 0) {
+                userAnswers[questionId] = text;
+            } else {
+                delete userAnswers[questionId];
+            }
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const exam = window.examsData[currentExamId];
+            if (!exam) return;
+            const total = (exam.questions || []).length;
+            const answered = Object.keys(userAnswers).length;
+            document.getElementById('answered-count').innerText = answered;
+            document.getElementById('progress-bar').style.width = `${total > 0 ? (answered / total) * 100 : 0}%`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeRemainingSeconds--;
+                updateTimerDisplay();
+                if (timeRemainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Tempo esgotado! Sua prova será enviada.");
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const min = Math.floor(timeRemainingSeconds / 60);
+            const sec = timeRemainingSeconds % 60;
+            document.getElementById('timer').innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function cancelExam() {
+            if (confirm("Deseja cancelar a prova? Os dados não serão salvos.")) {
+                clearInterval(timerInterval);
+                switchRole('student');
+            }
+        }
+
+        async function submitExam() {
+            clearInterval(timerInterval);
+            const exam = window.examsData[currentExamId];
+            let correctMultiple = 0;
+            let totalMultiple = 0;
+
+            (exam.questions || []).forEach(q => {
+                if (q.type === 'multiple') {
+                    totalMultiple++;
+                    if (userAnswers[q.id] === q.correct) correctMultiple++;
+                }
+            });
+
+            let score = 10;
+            if (totalMultiple > 0) {
+                score = ((correctMultiple / totalMultiple) * 10).toFixed(1);
+            }
+
+            const submission = {
+                id: Date.now(),
+                studentName: studentProfile.name,
+                studentRa: studentProfile.ra,
+                turma: studentProfile.turma,
+                examId: exam.id,
+                examTitle: exam.title,
+                score: parseFloat(score),
+                answers: userAnswers,
+                timestamp: new Date().toLocaleString('pt-BR')
+            };
+
+            // Enviar para Firebase Nuvem
+            await window.submitExamToCloud(submission);
+
+            // Tela de Resultado Aluno
+            document.getElementById('result-score').innerText = score;
+            document.getElementById('result-student-name').innerText = studentProfile.name;
+            document.getElementById('result-student-ra').innerText = studentProfile.ra;
+            document.getElementById('result-subject').innerText = exam.title;
+            document.getElementById('result-timestamp').innerText = submission.timestamp;
+
+            const badge = document.getElementById('result-status-badge');
+            if (score >= 6.0) {
+                badge.innerText = "Aprovado / Desempenho Satisfatório";
+                badge.className = "inline-block text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800";
+            } else {
+                badge.innerText = "Abaixo da Média / Atenção";
+                badge.className = "inline-block text-xs font-bold px-3 py-1 rounded-full bg-red-100 text-red-800";
+            }
+
+            // Gabarito
+            const gabaritoContainer = document.getElementById('result-gabarito-list');
+            gabaritoContainer.innerHTML = '';
+
+            (exam.questions || []).forEach((q, idx) => {
+                const userAns = userAnswers[q.id];
+                const item = document.createElement('div');
+                item.className = "bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs";
+
+                if (q.type === 'multiple') {
+                    const isCorrect = userAns === q.correct;
+                    item.innerHTML = `
+                        <p class="font-bold text-slate-800 mb-1">Questão 0${idx + 1}: ${q.text}</p>
+                        <p class="${isCorrect ? 'text-emerald-700 font-semibold' : 'text-red-600 font-semibold'}">
+                            Sua resposta: ${userAns !== undefined ? q.options[userAns] : 'Não respondida'}
+                        </p>
+                        ${!isCorrect ? `<p class="text-slate-500 mt-1">Resposta correta: <strong>${q.options[q.correct]}</strong></p>` : ''}
+                    `;
+                } else {
+                    item.innerHTML = `
+                        <p class="font-bold text-slate-800 mb-1">Questão 0${idx + 1} (Dissertativa): ${q.text}</p>
+                        <p class="text-slate-700 italic">Sua resposta: "${userAns || 'Sem resposta'}"</p>
+                        <p class="text-amber-800 bg-amber-50 p-2 rounded mt-2">Guia Docente: ${q.correctAnswerGuide || 'Em análise pelo professor.'}</p>
+                    `;
+                }
+                gabaritoContainer.appendChild(item);
+            });
+
+            document.getElementById('view-student-exam').classList.add('hidden');
+            document.getElementById('view-student-result').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderTeacherPanel() {
+            renderTeacherExamsList();
+            renderReportsTable();
+            populateSubjectFilter();
+        }
+
+        function switchTeacherTab(tab) {
+            const btnExams = document.getElementById('tab-btn-exams');
+            const btnReports = document.getElementById('tab-btn-reports');
+            const contentExams = document.getElementById('teacher-tab-exams');
+            const contentReports = document.getElementById('teacher-tab-reports');
+
+            if (tab === 'exams') {
+                btnExams.className = "pb-3 text-sm font-bold border-b-2 border-amber-500 text-amber-600 flex items-center gap-2";
+                btnReports.className = "pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2";
+                contentExams.classList.remove('hidden');
+                contentReports.classList.add('hidden');
+            } else {
+                btnReports.className = "pb-3 text-sm font-bold border-b-2 border-amber-500 text-amber-600 flex items-center gap-2";
+                btnExams.className = "pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2";
+                contentReports.classList.remove('hidden');
+                contentExams.classList.add('hidden');
+            }
+        }
+
+        function renderTeacherExamsList() {
+            const container = document.getElementById('teacher-exams-list');
+            if (!container) return;
+            container.innerHTML = '';
+            const keys = Object.keys(window.examsData || {});
+
+            document.getElementById('tab-count-exams').innerText = keys.length;
+
+            keys.forEach(key => {
+                const exam = window.examsData[key];
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between";
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-slate-900 text-base">${exam.title}</h4>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">${exam.durationMinutes} min</span>
+                        </div>
+                        <p class="text-xs text-slate-500">${exam.description}</p>
+                        <p class="text-xs font-semibold text-amber-700 mt-3">${exam.questions ? exam.questions.length : 0} questões cadastradas</p>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <button onclick="editExam('${exam.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold px-3 py-2 rounded-xl transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-pen-to-square text-amber-600"></i> Editar Prova
+                        </button>
+                        <button onclick="deleteExam('${exam.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-2 rounded-xl transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> Excluir Nuvem
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderReportsTable() {
+            const tbody = document.getElementById('reports-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const searchValue = (document.getElementById('filter-search')?.value || '').toLowerCase();
+            const subjectFilter = document.getElementById('filter-subject')?.value || '';
+
+            const subs = window.submissionsData || [];
+
+            let filtered = subs.filter(s => {
+                const matchSearch = (s.studentName || '').toLowerCase().includes(searchValue) || (s.studentRa || '').toLowerCase().includes(searchValue);
+                const matchSubject = subjectFilter === "" || s.examId === subjectFilter;
+                return matchSearch && matchSubject;
+            });
+
+            document.getElementById('tab-count-submissions').innerText = subs.length;
+            document.getElementById('stat-total-submissions').innerText = subs.length;
+
+            if (subs.length > 0) {
+                const sum = subs.reduce((acc, curr) => acc + (curr.score || 0), 0);
+                const avg = (sum / subs.length).toFixed(1);
+                document.getElementById('stat-avg-score').innerText = avg;
+
+                const passes = subs.filter(s => s.score >= 6.0).length;
+                const passRate = Math.round((passes / subs.length) * 100);
+                document.getElementById('stat-pass-rate').innerText = `${passRate}%`;
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Nenhuma submissão registrada no banco de dados.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-100";
+
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-900">${s.studentName}</td>
+                    <td class="p-4">${s.studentRa} <span class="text-slate-400">(${s.turma || 'Geral'})</span></td>
+                    <td class="p-4 font-medium text-amber-800">${s.examTitle}</td>
+                    <td class="p-4 text-slate-400">${s.timestamp}</td>
+                    <td class="p-4 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${s.score >= 6.0 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${Number(s.score).toFixed(1)}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="window.deleteSubmissionFromCloud(${s.id})" class="text-slate-400 hover:text-red-600 transition-colors" title="Remover do Firebase">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function populateSubjectFilter() {
+            const select = document.getElementById('filter-subject');
+            if (!select) return;
+            select.innerHTML = `<option value="">Todas as Disciplinas</option>`;
+            Object.keys(window.examsData || {}).forEach(key => {
+                select.innerHTML += `<option value="${key}">${window.examsData[key].title}</option>`;
+            });
+        }
+
+        function exportReportsCSV() {
+            const subs = window.submissionsData || [];
+            if (subs.length === 0) {
+                alert("Não há registros de notas para exportar.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Aluno,RA,Turma,Disciplina,Nota,Data\n";
+            subs.forEach(s => {
+                csvContent += `"${s.studentName}","${s.studentRa}","${s.turma || 'Geral'}","${s.examTitle}",${s.score},"${s.timestamp}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `notas_prof_halexandre_lord_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Modais
+        function openFirebaseConfigModal() {
+            document.getElementById('modal-firebase-config').classList.remove('hidden');
+        }
+
+        function closeFirebaseConfigModal() {
+            document.getElementById('modal-firebase-config').classList.add('hidden');
+        }
+
+        function openExamModal() {
+            document.getElementById('form-exam-id').value = '';
+            document.getElementById('form-exam-title').value = '';
+            document.getElementById('form-exam-duration').value = '15';
+            document.getElementById('form-exam-desc').value = '';
+            document.getElementById('form-questions-container').innerHTML = '';
+
+            addQuestionToForm();
+
+            document.getElementById('modal-exam-title').innerText = "Criar Prova na Nuvem Firebase";
+            document.getElementById('modal-exam').classList.remove('hidden');
+        }
+
+        function closeExamModal() {
+            document.getElementById('modal-exam').classList.add('hidden');
+        }
+
+        function editExam(id) {
+            const exam = window.examsData[id];
+            document.getElementById('form-exam-id').value = exam.id;
+            document.getElementById('form-exam-title').value = exam.title;
+            document.getElementById('form-exam-duration').value = exam.durationMinutes;
+            document.getElementById('form-exam-desc').value = exam.description;
+
+            const container = document.getElementById('form-questions-container');
+            container.innerHTML = '';
+
+            (exam.questions || []).forEach(q => addQuestionToForm(q));
+
+            document.getElementById('modal-exam-title').innerText = "Editar Prova no Firebase";
+            document.getElementById('modal-exam').classList.remove('hidden');
+        }
+
+        function deleteExam(id) {
+            if (confirm("Excluir esta prova no Firebase? Os alunos não poderão mais visualizá-la.")) {
+                window.deleteExamFromCloud(id);
+            }
+        }
+
+        function addQuestionToForm(qData = null) {
+            const container = document.getElementById('form-questions-container');
+            const qIdx = container.children.length;
+
+            const qDiv = document.createElement('div');
+            qDiv.className = "bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 relative";
+
+            const qType = qData ? qData.type : 'multiple';
+            const qText = qData ? qData.text : '';
+
+            qDiv.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700 uppercase">Questão ${qIdx + 1}</span>
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-500 hover:text-red-700 text-xs">
+                        <i class="fa-solid fa-trash"></i> Remover
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <input type="text" placeholder="Enunciado da Questão" value="${qText}" required class="q-form-text w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <select class="q-form-type w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs" onchange="toggleFormQuestionType(this)">
+                            <option value="multiple" ${qType === 'multiple' ? 'selected' : ''}>Múltipla Escolha</option>
+                            <option value="essay" ${qType === 'essay' ? 'selected' : ''}>Dissertativa</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="q-multiple-options space-y-2 ${qType === 'essay' ? 'hidden' : ''}">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Alternativas & Marcação Correta:</p>
+                    ${[0, 1, 2, 3].map(optIdx => `
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="correct_opt_${qIdx}" value="${optIdx}" ${qData && qData.correct === optIdx ? 'checked' : (optIdx === 0 ? 'checked' : '')} class="q-form-correct text-amber-600">
+                            <input type="text" placeholder="Opção ${optIdx + 1}" value="${qData && qData.options ? (qData.options[optIdx] || '') : ''}" class="q-form-option-${optIdx} w-full px-3 py-1 border border-slate-200 rounded text-xs">
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="q-essay-guide ${qType === 'multiple' ? 'hidden' : ''}">
+                    <input type="text" placeholder="Guia de correção do professor" value="${qData && qData.correctAnswerGuide ? qData.correctAnswerGuide : ''}" class="q-form-guide w-full px-3 py-1.5 border border-slate-200 rounded text-xs">
+                </div>
+            `;
+
+            container.appendChild(qDiv);
+        }
+
+        function toggleFormQuestionType(selectElem) {
+            const card = selectElem.parentElement.parentElement.parentElement;
+            const multBlock = card.querySelector('.q-multiple-options');
+            const essayBlock = card.querySelector('.q-essay-guide');
+
+            if (selectElem.value === 'multiple') {
+                multBlock.classList.remove('hidden');
+                essayBlock.classList.add('hidden');
+            } else {
+                multBlock.classList.add('hidden');
+                essayBlock.classList.remove('hidden');
+            }
+        }
+
+        async function saveExamForm(e) {
+            e.preventDefault();
+
+            const existingId = document.getElementById('form-exam-id').value;
+            const id = existingId || 'exam_' + Date.now();
+            const title = document.getElementById('form-exam-title').value;
+            const durationMinutes = parseInt(document.getElementById('form-exam-duration').value);
+            const description = document.getElementById('form-exam-desc').value;
+
+            const qElements = document.getElementById('form-questions-container').children;
+            const questions = [];
+
+            Array.from(qElements).forEach((qEl, idx) => {
+                const text = qEl.querySelector('.q-form-text').value;
+                const type = qEl.querySelector('.q-form-type').value;
+
+                if (type === 'multiple') {
+                    const options = [
+                        qEl.querySelector('.q-form-option-0').value,
+                        qEl.querySelector('.q-form-option-1').value,
+                        qEl.querySelector('.q-form-option-2').value,
+                        qEl.querySelector('.q-form-option-3').value
+                    ];
+                    const correctRadio = qEl.querySelector('input[type="radio"]:checked');
+                    const correct = correctRadio ? parseInt(correctRadio.value) : 0;
+
+                    questions.push({ id: idx + 1, type: 'multiple', text, options, correct });
+                } else {
+                    const guide = qEl.querySelector('.q-form-guide').value;
+                    questions.push({ id: idx + 1, type: 'essay', text, correctAnswerGuide: guide });
+                }
+            });
+
+            const examObj = { id, title, durationMinutes, description, questions };
+            await window.saveExamToCloud(examObj);
+
+            closeExamModal();
+        }
+    </script>
+</body>
+</html>
