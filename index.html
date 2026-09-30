@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prova Online</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div><strong>Prova Online</strong><span id="studentName"></span></div>
+  <button id="logoutBtn" class="btn btn-light hidden">Sair</button>
+</header>
+
+<main class="container">
+  <section id="loginCard" class="card">
+    <h1>Área do Aluno</h1>
+    <p>Informe seu nome e seu código de aluno para iniciar a prova.</p>
+    <form id="loginForm">
+      <label>Nome completo
+        <input id="name" required maxlength="120" autocomplete="name">
+      </label>
+      <label>Código do aluno
+        <input id="studentCode" required maxlength="40">
+      </label>
+      <button class="btn" type="submit">Iniciar prova</button>
+    </form>
+    <p id="loginMsg" class="msg"></p>
+  </section>
+
+  <section id="examCard" class="hidden">
+    <div class="exam-head card">
+      <div>
+        <h1>Prova</h1>
+        <p>10 questões • 5 alternativas • duração máxima: 2 horas</p>
+      </div>
+      <div class="timer" id="timer">02:00:00</div>
+    </div>
+    <form id="examForm"></form>
+    <div class="actions">
+      <button id="finishBtn" class="btn btn-danger" type="button">Terminar prova</button>
+    </div>
+    <p id="examMsg" class="msg"></p>
+  </section>
+
+  <section id="resultCard" class="card hidden">
+    <h1>Resultado</h1>
+    <div id="result"></div>
+    <button id="pdfBtn" class="btn">Gerar PDF da prova</button>
+    <button id="newExamBtn" class="btn btn-light">Voltar ao início</button>
+  </section>
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

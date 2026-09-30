@@ -1,0 +1,29 @@
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f5f8;color:#1f2937}
+.topbar{background:#172033;color:#fff;padding:16px 5%;display:flex;justify-content:space-between;align-items:center}
+.topbar span{margin-left:16px;opacity:.8;font-weight:normal}
+.container{max-width:980px;margin:30px auto;padding:0 16px}
+.card,.question{background:#fff;border-radius:12px;padding:24px;margin-bottom:18px;box-shadow:0 4px 18px rgba(0,0,0,.07)}
+h1,h2{margin-top:0}
+label{display:block;font-weight:600;margin:14px 0}
+input,textarea,select{display:block;width:100%;padding:12px;margin-top:7px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px}
+textarea{min-height:90px;resize:vertical}
+.btn{border:0;border-radius:8px;padding:12px 18px;background:#2563eb;color:white;font-weight:700;cursor:pointer;margin:6px 4px 6px 0}
+.btn:hover{filter:brightness(.95)}
+.btn-light{background:#e5e7eb;color:#111827}
+.btn-danger{background:#dc2626}
+.hidden{display:none!important}
+.msg{min-height:20px;color:#b91c1c}
+.timer{font-size:28px;font-weight:800;background:#fee2e2;color:#991b1b;padding:12px 16px;border-radius:10px;white-space:nowrap}
+.exam-head{display:flex;justify-content:space-between;align-items:center;gap:20px;position:sticky;top:0;z-index:10}
+.option{display:block;border:1px solid #e5e7eb;border-radius:8px;padding:11px;margin:8px 0;cursor:pointer;font-weight:normal}
+.option:hover{background:#f8fafc}
+.option input{display:inline-block;width:auto;margin:0 8px 0 0}
+.actions{text-align:right;margin:20px 0}
+.small{font-size:13px;color:#64748b}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:11px;border-bottom:1px solid #e5e7eb;text-align:left}
+.score{font-size:30px;font-weight:800}
+@media(max-width:650px){.exam-head{align-items:flex-start;flex-direction:column}.timer{width:100%;text-align:center}.container{margin-top:15px}.card,.question{padding:17px}}
+@media print{.topbar,#pdfBtn,#newExamBtn{display:none!important}.container{max-width:none}.card,.question{box-shadow:none;border:1px solid #ddd}.timer{display:none}}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Área do Professor</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <strong>Área do Professor</strong>
+  <button id="adminLogout" class="btn btn-light hidden">Sair</button>
+</header>
+<main class="container">
+  <section id="adminLogin" class="card">
+    <h1>Acesso restrito</h1>
+    <form id="adminLoginForm">
+      <label>Senha do professor
+        <input id="adminPassword" type="password" required>
+      </label>
+      <button class="btn" type="submit">Entrar</button>
+    </form>
+    <p id="adminMsg" class="msg"></p>
+  </section>
+
+  <section id="adminPanel" class="hidden">
+    <div class="card">
+      <h2>Configurações da prova</h2>
+      <label>Título
+        <input id="examTitle" maxlength="150">
+      </label>
+      <label>Duração (minutos)
+        <input id="duration" type="number" min="1" max="600">
+      </label>
+      <button id="saveSettings" class="btn">Salvar configurações</button>
+    </div>
+
+    <div class="card">
+      <h2>Questões</h2>
+      <div id="questionsEditor"></div>
+      <button id="saveQuestions" class="btn">Salvar questões</button>
+    </div>
+
+    <div class="card">
+      <h2>Resultados dos alunos</h2>
+      <p class="small">Somente o professor autenticado consegue consultar esta lista.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Aluno</th><th>Código</th><th>Pontuação</th><th>Data</th></tr></thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="assets/admin.js"></script>
+</body>
+</html>
